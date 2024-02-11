@@ -122,8 +122,10 @@ void CPU_LD_16BIT(CPU& cpu, ArithmeticTarget t1, ArithmeticTarget t2);
 
 #pragma endregion
 
-#pragma region INSTRUCTION_VALIDATION
+#pragma region CPU_HELPER_FUNCTIONS
 
 bool CPU_LD_VALIDATION(ArithmeticTarget t1, ArithmeticTarget t2);
+
+void* ArTarget_To_Ptr(CPU& cpu, ArithmeticTarget target);
 
 #pragma endregion

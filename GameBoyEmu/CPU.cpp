@@ -769,17 +769,47 @@ void CPU_LD(CPU& cpu, ArithmeticTarget t1, ArithmeticTarget t2)
 		return;
 	}
 
+	// let the other function handle the program counter
+
+	switch (t1) {
+	case BC:
+	case DE:
+	case HL:
+	case SP:
+	case a16:
+		CPU_LD_16BIT(cpu, t1, t2);
+		break;
+	default:
+		// must be a valid pair of 8 bit operands, else CPU_LD_VALIDATION would have failed
+		CPU_LD_8BIT(cpu, t1, t2);
+		break;
+	}
 
 }
 
 void CPU_LD_8BIT(CPU& cpu, ArithmeticTarget t1, ArithmeticTarget t2)
 {
-	throw std::exception("CPU_LD_8BIT is not implemented yet.");
+	uint8_t* p1 = nullptr,
+		* p2 = nullptr;
+
+	p1 = (uint8_t*)ArTarget_To_Ptr(cpu, t1);
+	p2 = (uint8_t*)ArTarget_To_Ptr(cpu, t2);
+
+	*p1 = *p2;
 }
 
 void CPU_LD_16BIT(CPU& cpu, ArithmeticTarget t1, ArithmeticTarget t2)
 {
-	throw std::exception("CPU_LD_16BIT is not implemented yet.");
+	uint8_t* p1_lower = nullptr, 
+		* p1_higher = nullptr, 
+		* p2_lower = nullptr, 
+		* p2_higher = nullptr;
+
+
+
+
+	*p1_lower = *p2_lower;
+	*p1_higher = *p2_higher;
 }
 
 
@@ -853,4 +883,42 @@ bool CPU_LD_VALIDATION(ArithmeticTarget t1, ArithmeticTarget t2)
 	}
 
 	return false;
+}
+
+void* ArTarget_To_Ptr(CPU& cpu, ArithmeticTarget target)
+{
+	switch (target) {
+	case A:
+		return &cpu.registers.a;
+	case B:
+		return &cpu.registers.b;
+	case C:
+		return &cpu.registers.c;
+	case D:
+		return &cpu.registers.d;
+	case E:
+		return &cpu.registers.e;
+	case H:
+		return &cpu.registers.h;
+	case L:
+		return &cpu.registers.l;
+	case HL_NEG:
+	case HL_POS:
+	case HL_AS_ADDRESS:
+		return MemoryBus_get_ptr(cpu.bus, Reg_get_16bit(cpu.registers, hl));
+	case DE_AS_ADDRESS:
+		return MemoryBus_get_ptr(cpu.bus, Reg_get_16bit(cpu.registers, de));
+	case BC_AS_ADDRESS:
+		return MemoryBus_get_ptr(cpu.bus, Reg_get_16bit(cpu.registers, bc));
+	case C_AS_LOWER_ADDRESS:
+		return MemoryBus_get_ptr(cpu.bus, 0xFF00 + cpu.registers.c);
+	case a8:
+		return MemoryBus_get_ptr(cpu.bus,  0xFF00 + MemoryBus_read_byte(cpu.bus, cpu.pc + 1));
+	case d8:
+		return (uint8_t*)MemoryBus_get_ptr(cpu.bus, cpu.pc + 1);
+	case s8:
+		return (int8_t*)MemoryBus_get_ptr(cpu.bus, cpu.pc + 1);
+	default:
+		throw std::invalid_argument("Cannot get pointer for invalid Arithmetic Target!");
+	}
 }
