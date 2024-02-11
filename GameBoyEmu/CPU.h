@@ -1,6 +1,5 @@
 #pragma once
 #include "Registers.h"
-#include "Arithmetic.h"
 #include "MemoryBus.h"
 #include <stdexcept>
 

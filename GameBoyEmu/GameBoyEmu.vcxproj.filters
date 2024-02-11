@@ -41,7 +41,7 @@
     <ClCompile Include="CPU.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Arithmetic.cpp">
+    <ClCompile Include="Arithmetic.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Main.cpp">

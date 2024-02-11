@@ -1,6 +1,7 @@
 #include "Arithmetic.h"
 
-arithmeticResultu8 overflowing_add_u8(uint8_t value1, uint8_t value2)
+
+arithmeticResultu8 add_u8(uint8_t value1, uint8_t value2)
 {
 	uint16_t bigint = value1 + value2;
 
@@ -15,7 +16,7 @@ arithmeticResultu8 overflowing_add_u8(uint8_t value1, uint8_t value2)
 	return result;
 }
 
-arithmeticResultu8 overflowing_add_u8(uint8_t value1, uint8_t value2, uint8_t value3)
+arithmeticResultu8 add_u8_3vals(uint8_t value1, uint8_t value2, uint8_t value3)
 {
 	uint32_t bigint = value1 + value2 + value3;
 
@@ -30,7 +31,7 @@ arithmeticResultu8 overflowing_add_u8(uint8_t value1, uint8_t value2, uint8_t va
 	return result;
 }
 
-arithmeticResultu16 overflowing_add_u16(uint16_t value1, uint16_t value2)
+arithmeticResultu16 add_u16(uint16_t value1, uint16_t value2)
 {
 	uint32_t bigint = value1 + value2;
 
@@ -45,7 +46,7 @@ arithmeticResultu16 overflowing_add_u16(uint16_t value1, uint16_t value2)
 	return result;
 }
 
-arithmeticResultu8 underflowing_sub_u8(uint8_t value1, uint8_t value2)
+arithmeticResultu8 sub_u8(uint8_t value1, uint8_t value2)
 {
 	arithmeticResultu8 result;
 	result.wrappedValue  = value1 - value2;
@@ -54,7 +55,7 @@ arithmeticResultu8 underflowing_sub_u8(uint8_t value1, uint8_t value2)
 	return result;
 }
 
-arithmeticResultu8 underflowing_sub_u8(uint8_t value1, uint8_t value2, uint8_t value3)
+arithmeticResultu8 sub_u8_3vals(uint8_t value1, uint8_t value2, uint8_t value3)
 {
 	arithmeticResultu8 result;
 	result.wrappedValue = (value1 - value2)-value3;
@@ -63,7 +64,7 @@ arithmeticResultu8 underflowing_sub_u8(uint8_t value1, uint8_t value2, uint8_t v
 	return result;
 }
 
-arithmeticResultu16 underflowing_sub_u16(uint16_t value1, uint16_t value2)
+arithmeticResultu16 sub_u16(uint16_t value1, uint16_t value2)
 {
 	arithmeticResultu16 result;
 	result.wrappedValue = value1 - value2;

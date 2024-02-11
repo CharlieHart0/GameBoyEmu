@@ -1,5 +1,6 @@
 #include "CPU.h"
 #include "Instructions.h"
+#include "Arithmetic.h"
 
 void CPU_step(CPU& cpu)
 {
@@ -7,7 +8,7 @@ void CPU_step(CPU& cpu)
 
 	//TODO 16 bit instrucitons
 	if (eightBitInstructions[instruction_byte].instruction != UNINITALISED) {
-		CPU_excecute(cpu, eightBitInstructions[instruction_byte].instruction);
+		CPU_excecute(cpu, eightBitInstructions[instruction_byte]);
 	}
 	else {
 		char exceptionMessage[37];
@@ -19,7 +20,7 @@ void CPU_step(CPU& cpu)
 void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 {
 	Registers* registers = &cpu.registers;
-
+	
 	switch (fullInstruction.instruction){
 	case ADD:
 		CPU_ADD(cpu, fullInstruction.op2);
@@ -124,7 +125,7 @@ void CPU_ADD(CPU& cpu, ArithmeticTarget target)
 		throw std::invalid_argument("CPU_ADD recieved invalid target register!!");
 		return;
 	}
-	arithmeticResultu8 result = overflowing_add_u8(registers->a, operand);
+	arithmeticResultu8 result = add_u8(registers->a, operand);
 	
 
 	//set flag registers
@@ -163,7 +164,7 @@ void CPU_ADDHL(CPU& cpu, ArithmeticTarget target)
 
 	uint16_t hlValue = Reg_get_16bit(cpu.registers, hl);
 
-	arithmeticResultu16 result = overflowing_add_u16(hlValue, operand);
+	arithmeticResultu16 result = add_u16(hlValue, operand);
 
 	
 	//set flags
@@ -375,7 +376,7 @@ void CPU_SUB(CPU& cpu, ArithmeticTarget target)
 		return;
 	}
 	
-	arithmeticResultu8 result = overflowing_add_u8(registers->a, operand);
+	arithmeticResultu8 result = add_u8(registers->a, operand);
 
 
 	//set flag registers
@@ -427,7 +428,7 @@ void CPU_CP(CPU& cpu, ArithmeticTarget target)
 		return;
 	}
 
-	arithmeticResultu8 result = overflowing_add_u8(registers->a, operand);
+	arithmeticResultu8 result = add_u8(registers->a, operand);
 
 
 	//set flag registers
@@ -481,7 +482,7 @@ void CPU_INC(CPU& cpu, ArithmeticTarget target)
 		throw std::invalid_argument("CPU_INC recieved invalid target register!!");
 		return;
 	}
-	arithmeticResultu8 result = overflowing_add_u8(operand, 0x01);
+	arithmeticResultu8 result = add_u8(operand, 0x01);
 
 
 	//set flag registers
@@ -521,7 +522,7 @@ void CPU_INC16(CPU& cpu, ArithmeticTarget target)
 		throw std::invalid_argument("CPU_INC16 recieved invalid target register!!");
 		return;
 	}
-	arithmeticResultu16 result = overflowing_add_u16(operand, 0x01);
+	arithmeticResultu16 result = add_u16(operand, 0x01);
 
 
 	// flag registers are not set in this instruction
@@ -573,7 +574,7 @@ void CPU_DEC(CPU& cpu, ArithmeticTarget target)
 		return;
 	}
 
-	arithmeticResultu8 result = underflowing_sub_u8(operand, 1);
+	arithmeticResultu8 result = sub_u8(operand, 1);
 
 
 	//set flag registers
@@ -612,7 +613,7 @@ void CPU_DEC16(CPU& cpu, ArithmeticTarget target)
 		throw std::invalid_argument("CPU_DEC16 recieved invalid target register!!");
 		return;
 	}
-	arithmeticResultu16 result = underflowing_sub_u16(operand, 0x01);
+	arithmeticResultu16 result = sub_u16(operand, 0x01);
 
 
 	// flag registers are not set in this instruction
@@ -677,7 +678,7 @@ void CPU_ADC(CPU& cpu, ArithmeticTarget target)
 
 	uint8_t carry_uint8 = (registers->f.carry) ? 1 : 0;
 
-	arithmeticResultu8 result = overflowing_add_u8(registers->a, operand,carry_uint8);
+	arithmeticResultu8 result = add_u8_3vals(registers->a, operand,carry_uint8);
 
 
 	//set flag registers
@@ -734,7 +735,7 @@ void CPU_SBC(CPU& cpu, ArithmeticTarget target)
 
 	uint8_t carry_uint8 = (registers->f.carry) ? 1 : 0;
 
-	arithmeticResultu8 result = underflowing_sub_u8(registers->a, operand, carry_uint8);
+	arithmeticResultu8 result = sub_u8_3vals(registers->a, operand, carry_uint8);
 
 
 	//set flag registers
