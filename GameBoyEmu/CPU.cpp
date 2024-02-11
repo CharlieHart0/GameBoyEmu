@@ -796,6 +796,20 @@ void CPU_LD_8BIT(CPU& cpu, ArithmeticTarget t1, ArithmeticTarget t2)
 	p2 = (uint8_t*)ArTarget_To_Ptr(cpu, t2);
 
 	*p1 = *p2;
+
+	cpu.pc += 1;
+
+	if (t2 == d8 || t2 == a8 || t1 == a8) {
+		cpu.pc += 1;
+	}
+
+	if (t2 == HL_POS || t1 == HL_POS) {
+		Reg_set_16bit(cpu.registers, hl, Reg_get_16bit(cpu.registers, hl) + 1);
+	}
+
+	if (t2 == HL_NEG || t1 == HL_NEG) {
+		Reg_set_16bit(cpu.registers, hl, Reg_get_16bit(cpu.registers, hl) - 1);
+	}
 }
 
 void CPU_LD_16BIT(CPU& cpu, ArithmeticTarget t1, ArithmeticTarget t2)
@@ -921,4 +935,9 @@ void* ArTarget_To_Ptr(CPU& cpu, ArithmeticTarget target)
 	default:
 		throw std::invalid_argument("Cannot get pointer for invalid Arithmetic Target!");
 	}
+}
+
+sixteenBitValuePtrs ArTarget_To_Ptr_16b(CPU& cpu, ArithmeticTarget target)
+{
+	return sixteenBitValuePtrs();
 }

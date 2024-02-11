@@ -128,4 +128,6 @@ bool CPU_LD_VALIDATION(ArithmeticTarget t1, ArithmeticTarget t2);
 
 void* ArTarget_To_Ptr(CPU& cpu, ArithmeticTarget target);
 
+sixteenBitValuePtrs ArTarget_To_Ptr_16b(CPU& cpu, ArithmeticTarget target);
+
 #pragma endregion
