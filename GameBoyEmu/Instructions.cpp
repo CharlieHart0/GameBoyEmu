@@ -408,6 +408,17 @@ void initInstructionSet()
 	#pragma region LD_MAIN
 
 		// Instructions 0x40 to 0x7F
+		ArithmeticTarget ops[8] = { B,C,D,E,H,L,HL_AS_ADDRESS,A };
+
+
+		// this saved me literally half an hour of typing setEightBitInstruction(0x40, LD, B, B);
+		for (int op1 = 0; op1 < 8; op1++) {
+			for (int op2 = 0; op2 < 8; op2++) {
+				if (!(ops[op1] == HL_AS_ADDRESS && ops[op2] == HL_AS_ADDRESS)) {
+					setEightBitInstruction( (0x40 + (op1 * 8) + op2), LD, ops[op1], ops[op2]);
+				}
+			}
+		}
 
 	#pragma endregion
 
@@ -445,7 +456,6 @@ void initInstructionSet()
 			setEightBitInstruction(0xFA, LD, A, a16);
 
 		#pragma endregion
-
 		
 		#pragma region LD HL, SP_PLUS_s8  and SP, HL
 
@@ -458,15 +468,55 @@ void initInstructionSet()
 
 	#pragma region LD_8BIT_EXTRA
 
-	// LD C_AS_ADDRESS, A and A, C_AS_ADDRESS
+		#pragma region LD C_AS_ADDRESS, A and A, C_AS_ADDRESS
 
-	// LD a8,A and A, a8
+			setEightBitInstruction(0xE2, LD, C_AS_LOWER_ADDRESS, A);
+			setEightBitInstruction(0xF2, LD, A, C_AS_LOWER_ADDRESS);
 
-	// LD t1 d8    Code 0x(0-3)6  and  0x(0-3)E
+		#pragma endregion
 
-	// LD pair as address, A  Code 0x(0-3)2 
+		#pragma region LD a8,A and A, a8
 
-	// LD A, pair as address  Code 0x(0-3)A
+		setEightBitInstruction(0xF0, LD, a8, A);
+		setEightBitInstruction(0xE0, LD, A, a8);
+
+		#pragma endregion
+
+		#pragma region LD (A-L / HL AS ADDRESS), d8   
+
+		//Code 0x(0-3)6  and  0x(0-3)E
+		setEightBitInstruction(0x06, LD, B, d8);
+		setEightBitInstruction(0x16, LD, D, d8);
+		setEightBitInstruction(0x26, LD, H, d8);
+		setEightBitInstruction(0x36, LD, HL_AS_ADDRESS, d8);
+
+		setEightBitInstruction(0x0E, LD, C, d8);
+		setEightBitInstruction(0x1E, LD, E, d8);
+		setEightBitInstruction(0x2E, LD, L, d8);
+		setEightBitInstruction(0x3E, LD, A, d8);
+
+		#pragma endregion
+
+		#pragma region LD pair as address, A 
+
+		// Code 0x(0-3)2 
+		setEightBitInstruction(0x02, LD, BC_AS_ADDRESS, A);
+		setEightBitInstruction(0x12, LD, DE_AS_ADDRESS, A);
+		setEightBitInstruction(0x22, LD, HL_POS, A);
+		setEightBitInstruction(0x32, LD, HL_NEG, A);
+
+		#pragma endregion
+
+		#pragma region LD A, pair as address 
+		
+		// Code 0x(0-3)A
+		setEightBitInstruction(0x0A, LD, A, BC_AS_ADDRESS);
+		setEightBitInstruction(0x1A, LD, A, DE_AS_ADDRESS);
+		setEightBitInstruction(0x2A, LD, A, HL_POS);
+		setEightBitInstruction(0x3A, LD, A, HL_NEG);
+
+
+		#pragma endregion
 
 	#pragma endregion
 
