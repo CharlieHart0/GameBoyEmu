@@ -130,4 +130,6 @@ void* ArTarget_To_Ptr(CPU& cpu, ArithmeticTarget target);
 
 sixteenBitValuePtrs ArTarget_To_Ptr_16b(CPU& cpu, ArithmeticTarget target);
 
+sixteenBitValuePtrs uint16_to_uint8_ptrs(uint16_t* ptrIn);
+
 #pragma endregion

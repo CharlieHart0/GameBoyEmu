@@ -939,5 +939,45 @@ void* ArTarget_To_Ptr(CPU& cpu, ArithmeticTarget target)
 
 sixteenBitValuePtrs ArTarget_To_Ptr_16b(CPU& cpu, ArithmeticTarget target)
 {
-	return sixteenBitValuePtrs();
+	sixteenBitValuePtrs result;
+	switch (target) {
+	case DE:
+		result.lower = &cpu.registers.d;
+		result.higher = &cpu.registers.e;
+		break;
+	case BC:
+		result.lower = &cpu.registers.b;
+		result.higher = &cpu.registers.c;
+		break;
+	case HL:
+		result.lower = &cpu.registers.h;
+		result.higher = &cpu.registers.l;
+		break;
+	case SP:
+		result = uint16_to_uint8_ptrs(&cpu.sp);
+		break;
+	case a16:
+		result.lower = (uint8_t*)MemoryBus_get_ptr(cpu.bus,
+			MemoryBus_read_byte(cpu.bus, cpu.pc + 0x0001));
+		result.higher = (uint8_t*)MemoryBus_get_ptr(cpu.bus,
+			MemoryBus_read_byte(cpu.bus, cpu.pc + 0x0002));
+		break;
+	case d16:
+		result.lower = (uint8_t*)MemoryBus_get_ptr(cpu.bus, cpu.pc + 0x0001);
+		result.higher = (uint8_t*)MemoryBus_get_ptr(cpu.bus, cpu.pc + 0x0002);
+		break;
+
+	default:
+		throw std::invalid_argument("ArTarget_To_Ptr16 recieved invalid target!");	
+	}
+
+	return result;
+}
+
+sixteenBitValuePtrs uint16_to_uint8_ptrs(uint16_t* ptrIn)
+{
+	sixteenBitValuePtrs result;
+	result.lower = (uint8_t*)ptrIn; //TODO not sure if this actually works tbh
+	result.higher = (uint8_t*)ptrIn + 1;
+	return result;
 }
