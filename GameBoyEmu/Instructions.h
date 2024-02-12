@@ -10,6 +10,9 @@ void initInstructionSet() {
 
 	// instruction set guide https://meganesu.github.io/generate-gb-opcodes/
 
+	// this is how the instruction byte is decoded into a full instruction 
+	// (Instruction and 0-2 operands)
+
 #pragma region ADD
 
 	eightBitInstructions[0x80].instruction = ADD;
@@ -409,7 +412,25 @@ void initInstructionSet() {
 
 	#pragma region LD_16BIT
 
-	// LD 16 bit pair, d16
+		#pragma region LD 16 bit pair, d16
+
+		eightBitInstructions[0x01].instruction = LD;
+		eightBitInstructions[0x01].op1 = BC;
+		eightBitInstructions[0x01].op2 = d16;
+
+		eightBitInstructions[0x11].instruction = LD;
+		eightBitInstructions[0x11].op1 = DE;
+		eightBitInstructions[0x11].op2 = d16;
+
+		eightBitInstructions[0x21].instruction = LD;
+		eightBitInstructions[0x21].op1 = HL;
+		eightBitInstructions[0x21].op2 = d16;
+
+		eightBitInstructions[0x31].instruction = LD;
+		eightBitInstructions[0x31].op1 = SP;
+		eightBitInstructions[0x31].op2 = d16;
+
+		#pragma endregion
 
 	// LD a16, SP
 
