@@ -814,16 +814,51 @@ void CPU_LD_8BIT(CPU& cpu, ArithmeticTarget t1, ArithmeticTarget t2)
 
 void CPU_LD_16BIT(CPU& cpu, ArithmeticTarget t1, ArithmeticTarget t2)
 {
-	uint8_t* p1_lower = nullptr, 
-		* p1_higher = nullptr, 
-		* p2_lower = nullptr, 
-		* p2_higher = nullptr;
+	sixteenBitValuePtrs source = sixteenBitValuePtrs();
+	sixteenBitValuePtrs dest = sixteenBitValuePtrs();
+	
+	// only used if t2 == SP+s8, as intermediate stage is required
+	uint16_t sp_plus_s8 = 0;
+
+	if (t2 != SP_PLUS_s8) {
+		source = ArTarget_To_Ptr_16b(cpu, t2);
+	}
+	else {
+		sp_plus_s8 = cpu.sp;
+		sp_plus_s8 += *(int8_t*)ArTarget_To_Ptr(cpu, s8);
+		source = uint16_to_uint8_ptrs(&sp_plus_s8);
+	}
+	dest = ArTarget_To_Ptr_16b(cpu, t1);
 
 
+	
+
+	if (t1 == SP && t2 == HL) {
+		cpu.pc += 1;
+	}
+	else if (t1 == HL && t2 == SP_PLUS_s8) {
+		cpu.pc += 2;
+	}
+	else {
+		cpu.pc += 3;
+	}
 
 
-	*p1_lower = *p2_lower;
-	*p1_higher = *p2_higher;
+	if (dest.lower == nullptr) {
+		throw std::logic_error("CPU_LD_16BIT lower destination pointer was null!");
+	}
+	if (source.lower == nullptr) {
+		throw std::logic_error("CPU_LD_16BIT lower source pointer was null!");
+	}
+	if (dest.higher == nullptr) {
+		throw std::logic_error("CPU_LD_16BIT higher destination pointer was null!");
+	}
+	if (source.higher == nullptr) {
+		throw std::logic_error("CPU_LD_16BIT higher source pointer was null!");
+	}
+
+	*dest.lower = *source.lower;
+	*dest.higher = *source.higher;
 }
 
 

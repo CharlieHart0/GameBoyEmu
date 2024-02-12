@@ -38,6 +38,11 @@ struct FlagsRegister {
 struct sixteenBitValuePtrs {
 	uint8_t* lower;
 	uint8_t* higher;
+
+	sixteenBitValuePtrs() {
+		lower = nullptr;
+		higher = nullptr;
+	}
 };
 
 // Main Registers

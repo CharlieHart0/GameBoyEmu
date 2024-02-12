@@ -401,8 +401,37 @@ void initInstructionSet() {
 
 #pragma region LD
 
-	// main LD instructions 0x40 to 0x7F
+	#pragma region LD_MAIN
 
+	// Instructions 0x40 to 0x7F
+
+	#pragma endregion
+
+	#pragma region LD_16BIT
+
+	// LD 16 bit pair, d16
+
+	// LD a16, SP
+
+	// LD a16, A and A, a16
+
+	// LD HL, SP_PLUS_s8  and SP, HL
+
+	#pragma endregion
+
+	#pragma region LD_8BIT_EXTRA
+
+	// LD C_AS_ADDRESS, A and A, C_AS_ADDRESS
+
+	// LD a8,A and A, a8
+
+	// LD t1 d8    Code 0x(0-3)6  and  0x(0-3)E
+
+	// LD pair as address, A  Code 0x(0-3)2 
+
+	// LD A, pair as address  Code 0x(0-3)A
+
+	#pragma endregion
 
 #pragma endregion
 }
