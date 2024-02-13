@@ -73,7 +73,9 @@ void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 	case LD:
 		CPU_LD(cpu, fullInstruction.op1, fullInstruction.op2);
 		break;
-
+	case PUSH:
+		CPU_PUSH(cpu, fullInstruction.op1);
+		break;
 
 
 	default:
@@ -859,6 +861,39 @@ void CPU_LD_16BIT(CPU& cpu, ArithmeticTarget t1, ArithmeticTarget t2)
 
 	*dest.lower = *source.lower;
 	*dest.higher = *source.higher;
+}
+
+void CPU_PUSH(CPU& cpu, ArithmeticTarget t1)
+{
+	cpu.pc += 1;
+	uint8_t* sourceLower = nullptr;
+	uint8_t* sourceHigher = nullptr;
+	switch (t1) {
+	case BC:
+		sourceLower = &cpu.registers.b;
+		sourceHigher = &cpu.registers.c;
+		break;
+	case DE:
+		sourceLower = &cpu.registers.d;
+		sourceHigher = &cpu.registers.e;
+		break;
+	case HL:
+		sourceLower = &cpu.registers.h;
+		sourceHigher = &cpu.registers.l;
+		break;
+	case AF:
+		sourceLower = &cpu.registers.a;
+		sourceHigher = (uint8_t*)&cpu.registers.f;
+		break;
+	default:
+		throw std::invalid_argument("CPU_PUSH recieved invalid target register pair!!");
+		return;
+	}
+
+	cpu.sp -= 2;
+
+	MemoryBus_write_byte(cpu.bus,cpu.sp+1 , *sourceHigher);
+	MemoryBus_write_byte(cpu.bus, cpu.sp, *sourceLower);
 }
 
 
