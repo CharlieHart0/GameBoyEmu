@@ -92,7 +92,7 @@ void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 #pragma region CPU_INSTRUCTIONS
 
 
-void CPU_ADD(CPU& cpu, ArithmeticTarget target, ArithmeticTarget t2 = INVALID)
+void CPU_ADD(CPU& cpu, ArithmeticTarget target, ArithmeticTarget t2)
 {
 	if (target == SP && t2 == s8) {
 		CPU_ADD_0xE8(cpu);
