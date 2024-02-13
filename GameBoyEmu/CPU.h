@@ -83,7 +83,9 @@ void CPU_step(CPU& cpu);
 
 void CPU_excecute(CPU& cpu, FullInstruction fullInstruction);
 
-void CPU_ADD(CPU& cpu, ArithmeticTarget target);
+void CPU_ADD(CPU& cpu, ArithmeticTarget target, ArithmeticTarget t2 = INVALID);
+
+void CPU_ADD_0xE8(CPU& cpu);
 
 void CPU_ADDHL(CPU& cpu, ArithmeticTarget target);
 

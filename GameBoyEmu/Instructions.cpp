@@ -52,6 +52,8 @@ void initInstructionSet()
 	eightBitInstructions[0xC6].op1 = A;
 	eightBitInstructions[0xC6].op2 = d8;
 
+	setEightBitInstruction(0xE8, ADD, SP, s8);
+
 #pragma endregion
 
 #pragma region SUB

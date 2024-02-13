@@ -92,8 +92,13 @@ void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 #pragma region CPU_INSTRUCTIONS
 
 
-void CPU_ADD(CPU& cpu, ArithmeticTarget target)
+void CPU_ADD(CPU& cpu, ArithmeticTarget target, ArithmeticTarget t2 = INVALID)
 {
+	if (target == SP && t2 == s8) {
+		CPU_ADD_0xE8(cpu);
+		return;
+	}
+
 	cpu.pc += 1;
 	Registers* registers = &cpu.registers;
 	uint8_t operand;
@@ -143,6 +148,24 @@ void CPU_ADD(CPU& cpu, ArithmeticTarget target)
 
 	// set register A to the result at the end, as to not mess with half carry flag if targetRegister is also A
 	registers->a = result.wrappedValue;
+}
+
+void CPU_ADD_0xE8(CPU& cpu)
+{
+	int8_t signedVal = MemoryBus_read_byte(cpu.bus, cpu.pc + 1);
+	cpu.pc += 2;
+	
+	uint16_t result = 0;
+	result += signedVal;
+	result += cpu.sp;
+
+	cpu.registers.f.subtract = false;
+	cpu.registers.f.zero = 0;
+
+	cpu.registers.f.half_carry = ((cpu.sp & 0x0F) + (signedVal & 0x0F)) > 0xF;
+	cpu.registers.f.carry = ((cpu.sp & 0xFF) + signedVal) > 0xFF;
+
+	cpu.sp = result;
 }
 
 void CPU_ADDHL(CPU& cpu, ArithmeticTarget target)
