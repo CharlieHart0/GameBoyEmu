@@ -76,6 +76,9 @@ void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 	case PUSH:
 		CPU_PUSH(cpu, fullInstruction.op1);
 		break;
+	case POP:
+		CPU_POP(cpu, fullInstruction.op1);
+		break;
 
 
 	default:
@@ -894,6 +897,42 @@ void CPU_PUSH(CPU& cpu, ArithmeticTarget t1)
 
 	MemoryBus_write_byte(cpu.bus,cpu.sp+1 , *sourceHigher);
 	MemoryBus_write_byte(cpu.bus, cpu.sp, *sourceLower);
+}
+
+void CPU_POP(CPU& cpu, ArithmeticTarget t1)
+{
+	cpu.pc += 1;
+	uint8_t* destLower = nullptr;
+	uint8_t* destHigher = nullptr;
+	switch (t1) {
+	case BC:
+		destLower = &cpu.registers.b;
+		destHigher = &cpu.registers.c;
+		break;
+	case DE:
+		destLower = &cpu.registers.d;
+		destHigher = &cpu.registers.e;
+		break;
+	case HL:
+		destLower = &cpu.registers.h;
+		destHigher = &cpu.registers.l;
+		break;
+	case AF:
+		destLower = &cpu.registers.a;
+		destHigher = (uint8_t*)&cpu.registers.f;
+		break;
+	default:
+		throw std::invalid_argument("CPU_POP recieved invalid target register pair!!");
+		return;
+	}
+
+	
+
+	*destLower = MemoryBus_read_byte(cpu.bus, cpu.sp);
+	cpu.sp += 1;
+	*destHigher = MemoryBus_read_byte(cpu.bus, cpu.sp);
+	cpu.sp += 1;
+	
 }
 
 
