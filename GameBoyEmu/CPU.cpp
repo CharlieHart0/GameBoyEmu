@@ -97,6 +97,9 @@ void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 	case DI:
 		CPU_DI(cpu);
 		break;
+	case RST:
+		CPU_RST(cpu, (int)fullInstruction.op1);
+		break;
 
 
 
@@ -1153,6 +1156,22 @@ void CPU_DI(CPU& cpu)
 {
 	cpu.pc += 1;
 	cpu.ime = false;
+}
+
+void CPU_RST(CPU& cpu, int value)
+{
+
+	if (value < 0 || value > 7) {
+		throw std::invalid_argument("CPU_RST recieved invalid value!");
+		return;
+	}
+	cpu.pc += 1;
+	cpu.sp -= 2;
+
+	MemoryBus_write_byte(cpu.bus, cpu.sp + 1, (uint8_t)(cpu.pc >> 8));
+	MemoryBus_write_byte(cpu.bus, cpu.sp, (uint8_t)(cpu.pc & 0xFF));
+
+	cpu.pc = (uint16_t)(value * 8);
 }
 
 
