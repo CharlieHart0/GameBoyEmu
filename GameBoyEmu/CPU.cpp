@@ -115,6 +115,9 @@ void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 	case RRA:
 		CPU_RRA(cpu);
 		break;
+	case DAA:
+		CPU_DAA(cpu);
+		break;
 
 
 
@@ -1266,6 +1269,46 @@ void CPU_RRA(CPU& cpu)
 	cpu.registers.f.carry = (bool)carried;
 }
 
+void CPU_DAA(CPU& cpu)
+{
+	// oh boy this one is tricky
+
+	// something something Binary Coded Decimal
+	//  0101 (5) 1001 (9)   0101 1001 is 59 in BCD
+
+	// 6 is added or subtracted to the higher and lower nibbles to turn a BCD value to binary? i think?
+	// ngl this one kinda makes no sense but hey if it works it works right?
+
+	cpu.pc += 1;
+
+	uint16_t aTemp = (uint16_t)cpu.registers.a;
+
+
+	if (cpu.registers.f.half_carry || (cpu.registers.a & 0x0F) > 0x09) {
+		if (cpu.registers.f.subtract) {
+			aTemp -= 0x06;
+		}
+		else {
+			aTemp += 0x06;
+		}
+	}
+
+	if (cpu.registers.f.carry || ((cpu.registers.a & 0xF0) >> 4) > 0x09) {
+		if (cpu.registers.f.subtract) {
+			aTemp -= 0x60;
+		}
+		else {
+			aTemp += 0x60;
+		}
+	}
+
+
+	cpu.registers.f.zero = aTemp == 0;
+	cpu.registers.f.half_carry = 0;
+	cpu.registers.f.carry = cpu.registers.f.carry || aTemp > 0xFF;
+
+	cpu.registers.a = (uint8_t)aTemp & 0xFF;
+}
 
 
 #pragma endregion
