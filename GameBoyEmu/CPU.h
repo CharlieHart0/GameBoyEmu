@@ -28,7 +28,9 @@ enum Instruction {
 	JR,
 	JP,
 	CALL,
-	RET
+	RET,
+	EI,
+	DI
 };
 
 enum ArithmeticTarget {
@@ -82,6 +84,8 @@ struct CPU {
 	uint16_t pc;
 	uint16_t sp;
 	MemoryBus bus;
+
+	bool ime = true; //TODO should this be true by default? boot rom will probably make sure its correct anyway
 };
 
 #pragma region CPU_INSTRUCTIONS
@@ -143,6 +147,10 @@ void CPU_JP(CPU& cpu, ArithmeticTarget target);
 void CPU_CALL(CPU& cpu, ArithmeticTarget target);
 
 void CPU_RET(CPU& cpu, ArithmeticTarget target = INVALID);
+
+void CPU_EI(CPU& cpu);
+
+void CPU_DI(CPU& cpu);
 
 #pragma endregion
 

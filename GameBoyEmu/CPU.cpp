@@ -91,6 +91,12 @@ void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 	case RET:
 		CPU_RET(cpu, fullInstruction.op1);
 		break;
+	case EI:
+		CPU_EI(cpu);
+		break;
+	case DI:
+		CPU_DI(cpu);
+		break;
 
 
 
@@ -1098,8 +1104,6 @@ void CPU_CALL(CPU& cpu, ArithmeticTarget target)
 void CPU_RET(CPU& cpu, ArithmeticTarget target)
 {
 	bool doJump = false;
-	uint8_t lower = 0;
-	uint8_t higher = 0;
 
 	switch (target) {
 		// invalid is default operand  (for RET 0xC9, which has no operand)
@@ -1137,6 +1141,18 @@ void CPU_RET(CPU& cpu, ArithmeticTarget target)
 
 	
 	cpu.pc = ((uint16_t)higher << 8) + (uint16_t)lower;
+}
+
+void CPU_EI(CPU& cpu)
+{
+	cpu.pc += 1;
+	cpu.ime = true;
+}
+
+void CPU_DI(CPU& cpu)
+{
+	cpu.pc += 1;
+	cpu.ime = false;
 }
 
 
