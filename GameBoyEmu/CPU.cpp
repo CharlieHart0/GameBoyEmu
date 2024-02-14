@@ -85,6 +85,9 @@ void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 	case JP:
 		CPU_JP(cpu, fullInstruction.op1);
 		break;
+	case CALL:
+		CPU_CALL(cpu, fullInstruction.op1);
+		break;
 
 
 
@@ -1008,6 +1011,7 @@ void CPU_JP(CPU& cpu, ArithmeticTarget target)
 
 	switch (target) {
 	case a16:
+		doJump = true;
 		break;
 	case NZ:
 		doJump = !cpu.registers.f.zero;
@@ -1045,6 +1049,47 @@ void CPU_JP(CPU& cpu, ArithmeticTarget target)
 	if (!doJump) { return; }
 
 	cpu.sp = (uint16_t)lower + ((uint16_t)higher << 8);
+}
+
+void CPU_CALL(CPU& cpu, ArithmeticTarget target)
+{
+	bool doJump = false;
+
+	uint16_t address =( ( (uint16_t)MemoryBus_read_byte(cpu.bus,cpu.pc + 2) ) << 8) 
+		+(uint16_t)MemoryBus_read_byte(cpu.bus,cpu.pc + 1);
+
+	switch (target) {
+	case a16:
+		doJump = true;
+		break;
+	case NZ:
+		doJump = !cpu.registers.f.zero;
+		break;
+	case NC:
+		doJump = !cpu.registers.f.carry;
+		break;
+	case C:
+		doJump = cpu.registers.f.carry;
+		break;
+	case Z:
+		doJump = cpu.registers.f.zero;
+		break;
+	default:
+		throw std::invalid_argument("CPU_CALL recieved invalid operand!!");
+		return;;
+	}
+
+	cpu.pc += 3;
+
+	if (!doJump) { return; }
+
+	cpu.sp -= 2;
+
+	MemoryBus_write_byte(cpu.bus, cpu.sp+1,(uint8_t)(cpu.pc >> 8));
+	MemoryBus_write_byte(cpu.bus, cpu.sp, (uint8_t)(cpu.pc & 0xFF));
+
+	cpu.pc = address;
+
 }
 
 

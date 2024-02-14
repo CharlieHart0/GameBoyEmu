@@ -26,7 +26,8 @@ enum Instruction {
 	PUSH,
 	POP,
 	JR,
-	JP
+	JP,
+	CALL
 };
 
 enum ArithmeticTarget {
@@ -137,6 +138,8 @@ void CPU_POP(CPU& cpu, ArithmeticTarget t1);
 void CPU_JR(CPU& cpu, ArithmeticTarget target);
 
 void CPU_JP(CPU& cpu, ArithmeticTarget target);
+
+void CPU_CALL(CPU& cpu, ArithmeticTarget target);
 
 #pragma endregion
 
