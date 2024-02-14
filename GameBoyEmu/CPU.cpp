@@ -82,6 +82,9 @@ void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 	case JR:
 		CPU_JR(cpu, fullInstruction.op1);
 		break;
+	case JP:
+		CPU_JP(cpu, fullInstruction.op1);
+		break;
 
 
 
@@ -995,6 +998,53 @@ void CPU_JR(CPU& cpu, ArithmeticTarget target)
 	int8_t signedVal = MemoryBus_read_byte(cpu.bus, cpu.pc + 1);
 	cpu.pc += 2;
 	cpu.pc += signedVal;
+}
+
+void CPU_JP(CPU& cpu, ArithmeticTarget target)
+{
+	bool doJump = false;
+	uint8_t lower = 0;
+	uint8_t higher = 0;
+
+	switch (target) {
+	case a16:
+		break;
+	case NZ:
+		doJump = !cpu.registers.f.zero;
+		break;
+	case NC:
+		doJump = !cpu.registers.f.carry;
+		break;
+	case C:
+		doJump = cpu.registers.f.carry;
+		break;
+	case Z:
+		doJump = cpu.registers.f.zero;
+		break;
+	case HL:
+		doJump = true;
+		break;
+	default:
+		throw std::invalid_argument("CPU_JP recieved invalid operand!!");
+		return;;
+	}
+
+	
+
+	if (target == HL) {
+		lower = cpu.registers.h;
+		higher = cpu.registers.l;
+		cpu.pc += 1;
+	}
+	else {
+		lower = MemoryBus_read_byte(cpu.bus, cpu.pc + 1);
+		higher = MemoryBus_read_byte(cpu.bus, cpu.pc + 2);
+		cpu.pc += 3;
+	}
+	
+	if (!doJump) { return; }
+
+	cpu.sp = (uint16_t)lower + ((uint16_t)higher << 8);
 }
 
 
