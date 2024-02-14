@@ -88,6 +88,9 @@ void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 	case CALL:
 		CPU_CALL(cpu, fullInstruction.op1);
 		break;
+	case RET:
+		CPU_RET(cpu, fullInstruction.op1);
+		break;
 
 
 
@@ -990,7 +993,7 @@ void CPU_JR(CPU& cpu, ArithmeticTarget target)
 		break;
 	default:
 		throw std::invalid_argument("CPU_JR recieved invalid operand!!");
-		return;;
+		return;
 	}
 
 	if (!doJump) {
@@ -1030,7 +1033,7 @@ void CPU_JP(CPU& cpu, ArithmeticTarget target)
 		break;
 	default:
 		throw std::invalid_argument("CPU_JP recieved invalid operand!!");
-		return;;
+		return;
 	}
 
 	
@@ -1076,7 +1079,7 @@ void CPU_CALL(CPU& cpu, ArithmeticTarget target)
 		break;
 	default:
 		throw std::invalid_argument("CPU_CALL recieved invalid operand!!");
-		return;;
+		return;
 	}
 
 	cpu.pc += 3;
@@ -1090,6 +1093,50 @@ void CPU_CALL(CPU& cpu, ArithmeticTarget target)
 
 	cpu.pc = address;
 
+}
+
+void CPU_RET(CPU& cpu, ArithmeticTarget target)
+{
+	bool doJump = false;
+	uint8_t lower = 0;
+	uint8_t higher = 0;
+
+	switch (target) {
+		// invalid is default operand  (for RET 0xC9, which has no operand)
+	case INVALID:
+		doJump = true;
+		break;
+	case NZ:
+		doJump = !cpu.registers.f.zero;
+		break;
+	case NC:
+		doJump = !cpu.registers.f.carry;
+		break;
+	case C:
+		doJump = cpu.registers.f.carry;
+		break;
+	case Z:
+		doJump = cpu.registers.f.zero;
+		break;
+	default:
+		throw std::invalid_argument("CPU_RET recieved invalid operand!!");
+		return;
+	}
+
+	if (!doJump) {
+		cpu.pc += 1;
+		return;
+	}
+
+	// pop from stack
+
+	uint8_t lower = MemoryBus_read_byte(cpu.bus, cpu.sp);
+	cpu.sp += 1;
+	uint8_t higher = MemoryBus_read_byte(cpu.bus, cpu.sp);
+	cpu.sp += 1;
+
+	
+	cpu.pc = ((uint16_t)higher << 8) + (uint16_t)lower;
 }
 
 
