@@ -103,6 +103,18 @@ void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 	case RETI:
 		CPU_RETI(cpu);
 		break;
+	case RLCA:
+		CPU_RLCA(cpu);
+		break;
+	case RLA:
+		CPU_RLA(cpu);
+		break;
+	case RRCA:
+		CPU_RRCA(cpu);
+		break;
+	case RRA:
+		CPU_RRA(cpu);
+		break;
 
 
 
@@ -1184,6 +1196,74 @@ void CPU_RETI(CPU& cpu)
 	cpu.pc = (((uint16_t)MemoryBus_read_byte(cpu.bus, cpu.sp+1)) << 8) |
 		(uint16_t)MemoryBus_read_byte(cpu.bus, cpu.sp);
 	cpu.sp += 2;
+}
+
+void CPU_RLCA(CPU& cpu)
+{
+	uint8_t carried = 0;
+	cpu.pc += 1;
+
+	carried = cpu.registers.a & 0b10000000;
+	carried >> 7;
+
+	cpu.registers.a << 1;
+	cpu.registers.a += carried;
+
+	cpu.registers.f.zero = false;
+	cpu.registers.f.subtract = false;
+	cpu.registers.f.half_carry = false;
+	cpu.registers.f.carry = (bool)carried;
+
+}
+
+void CPU_RLA(CPU& cpu)
+{
+	uint8_t carried = 0;
+	cpu.pc += 1;
+
+	carried = cpu.registers.a & 0b10000000;
+	carried >> 7;
+
+	cpu.registers.a << 1;
+	if(cpu.registers.f.carry){ cpu.registers.a += 0x01; }
+	
+
+	cpu.registers.f.zero = false;
+	cpu.registers.f.subtract = false;
+	cpu.registers.f.half_carry = false;
+	cpu.registers.f.carry = (bool)carried;
+}
+
+void CPU_RRCA(CPU& cpu)
+{
+	uint8_t carried = 0;
+	cpu.pc += 1;
+
+	carried = cpu.registers.a & 0b00000001;
+
+	cpu.registers.a >> 1;
+	cpu.registers.a += carried;
+
+	cpu.registers.f.zero = false;
+	cpu.registers.f.subtract = false;
+	cpu.registers.f.half_carry = false;
+	cpu.registers.f.carry = (bool)carried;
+}
+
+void CPU_RRA(CPU& cpu)
+{
+	uint8_t carried = 0;
+	cpu.pc += 1;
+
+	carried = cpu.registers.a & 0b00000001;
+
+	cpu.registers.a >> 1;
+	if (cpu.registers.f.carry) { cpu.registers.a += 0x01; }
+
+	cpu.registers.f.zero = false;
+	cpu.registers.f.subtract = false;
+	cpu.registers.f.half_carry = false;
+	cpu.registers.f.carry = (bool)carried;
 }
 
 
