@@ -24,7 +24,8 @@ enum Instruction {
 	SCF,
 	LD,
 	PUSH,
-	POP
+	POP,
+	JR
 };
 
 enum ArithmeticTarget {
@@ -49,10 +50,13 @@ enum ArithmeticTarget {
 	C_AS_LOWER_ADDRESS,
 	a8,
 	a16,
-	s8,
+	s8, 
 	SP_PLUS_s8,
 	d16,
-	AF
+	AF,
+	NZ,
+	Z,
+	NC
 
 };
 
@@ -128,6 +132,8 @@ void CPU_LD_16BIT(CPU& cpu, ArithmeticTarget t1, ArithmeticTarget t2);
 void CPU_PUSH(CPU& cpu, ArithmeticTarget t1);
 
 void CPU_POP(CPU& cpu, ArithmeticTarget t1);
+
+void CPU_JR(CPU& cpu, ArithmeticTarget target);
 
 #pragma endregion
 

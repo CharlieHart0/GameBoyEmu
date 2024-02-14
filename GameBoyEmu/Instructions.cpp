@@ -541,6 +541,17 @@ void initInstructionSet()
 		setEightBitInstruction(0xF1, POP, AF);
 
 #pragma endregion
+
+#pragma region JR
+
+		setEightBitInstruction(0x18, JR, s8);
+		setEightBitInstruction(0x28, JR, Z);
+		setEightBitInstruction(0x38, JR, C);
+		setEightBitInstruction(0x20, JR, NZ);
+		setEightBitInstruction(0x30, JR, NC);
+
+#pragma endregion
+
 }
 
 void setEightBitInstruction(uint8_t instruction_byte, Instruction instruction, ArithmeticTarget t1, ArithmeticTarget t2)

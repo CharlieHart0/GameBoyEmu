@@ -79,6 +79,10 @@ void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 	case POP:
 		CPU_POP(cpu, fullInstruction.op1);
 		break;
+	case JR:
+		CPU_JR(cpu, fullInstruction.op1);
+		break;
+
 
 
 	default:
@@ -956,6 +960,41 @@ void CPU_POP(CPU& cpu, ArithmeticTarget t1)
 	*destHigher = MemoryBus_read_byte(cpu.bus, cpu.sp);
 	cpu.sp += 1;
 	
+}
+
+void CPU_JR(CPU& cpu, ArithmeticTarget target)
+{
+	bool doJump = false;
+
+	switch (target) {
+	case s8:
+		doJump = true;
+		break;
+	case NZ:
+		doJump = !cpu.registers.f.zero;
+		break;
+	case NC:
+		doJump = !cpu.registers.f.carry;
+		break;
+	case C:
+		doJump = cpu.registers.f.carry;
+		break;
+	case Z:
+		doJump = cpu.registers.f.zero;
+		break;
+	default:
+		throw std::invalid_argument("CPU_JR recieved invalid operand!!");
+		return;;
+	}
+
+	if (!doJump) {
+		cpu.pc += 2;
+		return;
+	}
+
+	int8_t signedVal = MemoryBus_read_byte(cpu.bus, cpu.pc + 1);
+	cpu.pc += 2;
+	cpu.pc += signedVal;
 }
 
 
