@@ -100,6 +100,9 @@ void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 	case RST:
 		CPU_RST(cpu, (int)fullInstruction.op1);
 		break;
+	case RETI:
+		CPU_RETI(cpu);
+		break;
 
 
 
@@ -1172,6 +1175,15 @@ void CPU_RST(CPU& cpu, int value)
 	MemoryBus_write_byte(cpu.bus, cpu.sp, (uint8_t)(cpu.pc & 0xFF));
 
 	cpu.pc = (uint16_t)(value * 8);
+}
+
+void CPU_RETI(CPU& cpu)
+{
+	cpu.pc += 1;
+	cpu.ime = true;
+	cpu.pc = (((uint16_t)MemoryBus_read_byte(cpu.bus, cpu.sp+1)) << 8) |
+		(uint16_t)MemoryBus_read_byte(cpu.bus, cpu.sp);
+	cpu.sp += 2;
 }
 
 

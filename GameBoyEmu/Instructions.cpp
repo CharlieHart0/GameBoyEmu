@@ -607,6 +607,12 @@ void initInstructionSet()
 		setEightBitInstruction(0xFF, RST, (ArithmeticTarget)7);
 
 #pragma endregion
+
+#pragma region RETI
+
+		setEightBitInstruction(0xD9, RETI);
+
+#pragma endregion
 }
 
 void setEightBitInstruction(uint8_t instruction_byte, Instruction instruction, ArithmeticTarget t1, ArithmeticTarget t2)

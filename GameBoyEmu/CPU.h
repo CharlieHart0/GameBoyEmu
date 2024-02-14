@@ -31,7 +31,8 @@ enum Instruction {
 	RET,
 	EI,
 	DI,
-	RST
+	RST,
+	RETI
 };
 
 enum ArithmeticTarget {
@@ -154,6 +155,8 @@ void CPU_EI(CPU& cpu);
 void CPU_DI(CPU& cpu);
 
 void CPU_RST(CPU& cpu, int value);
+
+void CPU_RETI(CPU& cpu);
 
 #pragma endregion
 
