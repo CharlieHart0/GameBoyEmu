@@ -736,6 +736,22 @@ void initInstructionSet()
 
 #pragma endregion
 
+	#pragma region RRC
+
+		for (int t = 0; t < 8; t++) {
+			setPrefixedInstruction(0x08 + t, RRC, targets[t]);
+		}
+
+#pragma endregion
+
+	#pragma region RR
+
+			for (int t = 0; t < 8; t++) {
+				setPrefixedInstruction(0x18 + t, RR, targets[t]);
+			}
+
+	#pragma endregion
+
 #pragma endregion
 }
 

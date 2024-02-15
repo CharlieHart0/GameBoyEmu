@@ -46,7 +46,9 @@ enum Instruction {
 	SLA,
 	SRA,
 	RLC,
-	RL
+	RL,
+	RRC,
+	RR
 };
 
 enum ArithmeticTarget {
@@ -201,6 +203,10 @@ void CPU_SRA(CPU& cpu, ArithmeticTarget target);
 void CPU_RLC(CPU& cpu, ArithmeticTarget target);
 
 void CPU_RL(CPU& cpu, ArithmeticTarget target);
+
+void CPU_RRC(CPU& cpu, ArithmeticTarget target);
+
+void CPU_RR(CPU& cpu, ArithmeticTarget target);
 
 #pragma endregion
 
