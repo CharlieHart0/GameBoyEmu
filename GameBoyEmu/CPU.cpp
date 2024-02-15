@@ -155,6 +155,9 @@ void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 	case RLC:
 		CPU_RLC(cpu, fullInstruction.op1);
 		break;
+	case RL:
+		CPU_RL(cpu, fullInstruction.op1);
+		break;
 
 
 	default:
@@ -1727,6 +1730,54 @@ void CPU_RLC(CPU& cpu, ArithmeticTarget target)
 
 	*bytePointer <<= 1;
 	*bytePointer += bit7;
+
+	cpu.registers.f.zero = *bytePointer == 0;
+	cpu.registers.f.subtract = false;
+	cpu.registers.f.half_carry = false;
+	cpu.registers.f.carry = bit7;
+}
+
+void CPU_RL(CPU& cpu, ArithmeticTarget target)
+{
+	cpu.pc += 2;
+	uint8_t* bytePointer = nullptr;
+
+	switch (target) {
+	case A:
+		bytePointer = &cpu.registers.a;
+		break;
+	case B:
+		bytePointer = &cpu.registers.b;
+		break;
+	case C:
+		bytePointer = &cpu.registers.c;
+		break;
+	case D:
+		bytePointer = &cpu.registers.d;
+		break;
+	case E:
+		bytePointer = &cpu.registers.e;
+		break;
+	case H:
+		bytePointer = &cpu.registers.h;
+		break;
+	case L:
+		bytePointer = &cpu.registers.l;
+		break;
+	case HL_AS_ADDRESS:
+		bytePointer = (uint8_t*)MemoryBus_get_ptr(cpu.bus, Reg_get_16bit(cpu.registers, hl));
+		break;
+
+
+	default:
+		throw std::invalid_argument("CPU_RL recieved invalid target!");
+		return;
+	}
+
+	uint8_t bit7 = *bytePointer >> 7;
+
+	*bytePointer <<= 1;
+	if (cpu.registers.f.carry) { *bytePointer++; }
 
 	cpu.registers.f.zero = *bytePointer == 0;
 	cpu.registers.f.subtract = false;
