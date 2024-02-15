@@ -14,6 +14,8 @@ void initInstructionSet()
 	// this is how the instruction byte is decoded into a full instruction 
 	// (Instruction and 0-2 operands)
 
+	setEightBitInstruction(0x76, HALT);
+
 #pragma region ADD
 
 	eightBitInstructions[0x80].instruction = ADD;

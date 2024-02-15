@@ -48,7 +48,8 @@ enum Instruction {
 	RLC,
 	RL,
 	RRC,
-	RR
+	RR,
+	HALT
 };
 
 enum ArithmeticTarget {
@@ -104,6 +105,8 @@ struct CPU {
 	MemoryBus bus;
 
 	bool ime = true; //TODO should this be true by default? boot rom will probably make sure its correct anyway
+
+	bool isHalted = false;
 };
 
 #pragma region CPU_INSTRUCTIONS
@@ -183,6 +186,8 @@ void CPU_RRCA(CPU& cpu);
 void CPU_RRA(CPU& cpu);
 
 void CPU_DAA(CPU& cpu);
+
+void CPU_HALT(CPU& cpu);
 
 // prefixed instructions
 
