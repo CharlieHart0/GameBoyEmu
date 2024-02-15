@@ -702,7 +702,15 @@ void initInstructionSet()
 			setPrefixedInstruction(0x38 + t, SRL, targets[t]);
 		}
 
-#pragma endregion
+	#pragma endregion
+
+	#pragma region SLA
+
+		for (int t = 0; t < 8; t++) {
+			setPrefixedInstruction(0x20 + t, SLA, targets[t]);
+		}
+
+	#pragma endregion
 
 #pragma endregion
 }
