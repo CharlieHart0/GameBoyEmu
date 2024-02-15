@@ -643,6 +643,26 @@ void initInstructionSet()
 		setEightBitInstruction(0x27, DAA);
 
 #pragma endregion
+
+
+#pragma region prefixed instructions
+
+	#pragma region SET
+
+		ArithmeticTarget targets[8] = { B,C,D,E,H,L,HL_AS_ADDRESS,A };
+		uint8_t SET_START = 0xC0;
+		for (int t = 0; t < 8; t++) {
+			for (int v = 0; v < 8; v++) {
+				setPrefixedInstruction(SET_START + (t*8) + v, 
+					SET, 
+					targets[t], 
+					(ArithmeticTarget) v);
+			}
+		}
+
+	#pragma endregion
+
+#pragma endregion
 }
 
 void setEightBitInstruction(uint8_t instruction_byte, Instruction instruction, ArithmeticTarget t1, ArithmeticTarget t2)
