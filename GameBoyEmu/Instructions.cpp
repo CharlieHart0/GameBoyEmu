@@ -676,6 +676,20 @@ void initInstructionSet()
 
 	#pragma endregion
 
+	#pragma region BIT
+
+		uint8_t BIT_START = 0x40;
+		for (int t = 0; t < 8; t++) {
+			for (int v = 0; v < 8; v++) {
+				setPrefixedInstruction(BIT_START + (t * 8) + v,
+					BIT,
+					(ArithmeticTarget)v,
+					targets[t]);
+			}
+		}
+
+#pragma endregion
+
 #pragma endregion
 }
 

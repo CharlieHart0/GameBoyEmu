@@ -39,7 +39,8 @@ enum Instruction {
 	RRA,
 	DAA,
 	SET,
-	RES
+	RES,
+	BIT
 };
 
 enum ArithmeticTarget {
@@ -180,6 +181,8 @@ void CPU_DAA(CPU& cpu);
 void CPU_SET(CPU& cpu, ArithmeticTarget target, int value);
 
 void CPU_RES(CPU& cpu, ArithmeticTarget target, int value);
+
+void CPU_BIT(CPU& cpu, int value, ArithmeticTarget target);
 
 #pragma endregion
 

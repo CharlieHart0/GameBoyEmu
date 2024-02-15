@@ -137,6 +137,9 @@ void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 	case RES:
 		CPU_RES(cpu, fullInstruction.op1, (int)fullInstruction.op2);
 		break;
+	case BIT:
+		CPU_BIT(cpu, (int)fullInstruction.op1, fullInstruction.op2);
+		break;
 
 
 	default:
@@ -1426,6 +1429,57 @@ void CPU_RES(CPU& cpu, ArithmeticTarget target, int value)
 	}
 
 	*bytePointer -= (1 << value);
+}
+
+void CPU_BIT(CPU& cpu, int value, ArithmeticTarget target)
+{
+	cpu.pc += 2;
+	uint8_t byte = 0;
+
+	if (value < 0 || value > 7) {
+		throw std::invalid_argument("CPU_BIT recieved invalid value!");
+		return;
+	}
+
+	switch (target) {
+	case A:
+		byte = cpu.registers.a;
+		break;
+	case B:
+		byte = cpu.registers.b;
+		break;
+	case C:
+		byte = cpu.registers.c;
+		break;
+	case D:
+		byte = cpu.registers.d;
+		break;
+	case E:
+		byte = cpu.registers.e;
+		break;
+	case H:
+		byte = cpu.registers.h;
+		break;
+	case L:
+		byte = cpu.registers.l;
+		break;
+	case HL_AS_ADDRESS:
+		byte = Reg_get_16bit(cpu.registers, hl);
+		break;
+
+
+	default:
+		throw std::invalid_argument("CPU_BIT recieved invalid target!");
+		return;
+	}
+
+	byte >> value;
+
+	byte &= 0x01;
+
+	cpu.registers.f.zero = byte == 0;
+	cpu.registers.f.half_carry = 1;
+	cpu.registers.f.subtract = 0;
 }
 
 #pragma endregion
