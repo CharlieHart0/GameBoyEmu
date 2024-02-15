@@ -32,6 +32,8 @@ void CPU_step(CPU& cpu)
 
 void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 {
+	if (cpu.isHalted) { return; }
+
 	Registers* registers = &cpu.registers;
 	
 	switch (fullInstruction.instruction){
@@ -163,6 +165,9 @@ void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 		break;
 	case RR:
 		CPU_RR(cpu, fullInstruction.op1);
+		break;
+	case HALT:
+		CPU_HALT(cpu);
 		break;
 
 
@@ -1353,6 +1358,15 @@ void CPU_DAA(CPU& cpu)
 	cpu.registers.f.carry = cpu.registers.f.carry || aTemp > 0xFF;
 
 	cpu.registers.a = (uint8_t)aTemp & 0xFF;
+}
+
+void CPU_HALT(CPU& cpu)
+{
+	cpu.pc += 1; //TODO should i do this?
+
+	cpu.isHalted = true;
+
+	//TODO finish HALT
 }
 
 #pragma region prefixed instructions
