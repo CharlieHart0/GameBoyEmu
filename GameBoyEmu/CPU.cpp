@@ -140,10 +140,13 @@ void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 	case BIT:
 		CPU_BIT(cpu, (int)fullInstruction.op1, fullInstruction.op2);
 		break;
+	case SWAP:
+		CPU_SWAP(cpu, fullInstruction.op1);
+		break;
 
 
 	default:
-		throw std::invalid_argument("Invalid 8 bit instruction!");
+		throw std::invalid_argument("CPU_EXCECUTE: Invalid instruction!");
 		break;
 	}
 }
@@ -1480,6 +1483,55 @@ void CPU_BIT(CPU& cpu, int value, ArithmeticTarget target)
 	cpu.registers.f.zero = byte == 0;
 	cpu.registers.f.half_carry = 1;
 	cpu.registers.f.subtract = 0;
+}
+
+void CPU_SWAP(CPU& cpu, ArithmeticTarget target)
+{
+	cpu.pc += 2;
+	uint8_t* bytePointer = nullptr;
+
+	switch (target) {
+	case A:
+		bytePointer = &cpu.registers.a;
+		break;
+	case B:
+		bytePointer = &cpu.registers.b;
+		break;
+	case C:
+		bytePointer = &cpu.registers.c;
+		break;
+	case D:
+		bytePointer = &cpu.registers.d;
+		break;
+	case E:
+		bytePointer = &cpu.registers.e;
+		break;
+	case H:
+		bytePointer = &cpu.registers.h;
+		break;
+	case L:
+		bytePointer = &cpu.registers.l;
+		break;
+	case HL_AS_ADDRESS:
+		bytePointer = (uint8_t*)MemoryBus_get_ptr(cpu.bus, Reg_get_16bit(cpu.registers, hl));
+		break;
+
+
+	default:
+		throw std::invalid_argument("CPU_SWAP recieved invalid target!");
+		return;
+	}
+
+	uint8_t newLower = *bytePointer >> 4;
+	uint8_t newHigher = *bytePointer << 4;
+
+	*bytePointer = newLower + newHigher;
+
+	cpu.registers.f.zero = *bytePointer == 0;
+	cpu.registers.f.subtract = false;
+	cpu.registers.f.half_carry = false;
+	cpu.registers.f.carry = false;
+
 }
 
 #pragma endregion

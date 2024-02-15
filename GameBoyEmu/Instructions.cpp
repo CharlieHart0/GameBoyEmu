@@ -647,13 +647,13 @@ void initInstructionSet()
 
 #pragma region prefixed instructions
 
+		ArithmeticTarget targets[8] = { B,C,D,E,H,L,HL_AS_ADDRESS,A };
+
 	#pragma region SET
 
-		ArithmeticTarget targets[8] = { B,C,D,E,H,L,HL_AS_ADDRESS,A };
-		uint8_t SET_START = 0xC0;
 		for (int t = 0; t < 8; t++) {
 			for (int v = 0; v < 8; v++) {
-				setPrefixedInstruction(SET_START + (t*8) + v, 
+				setPrefixedInstruction(0xC0 + (t*8) + v,
 					SET, 
 					targets[t], 
 					(ArithmeticTarget) v);
@@ -664,10 +664,9 @@ void initInstructionSet()
 
 	#pragma region RES
 
-		uint8_t RES_START = 0x80;
 		for (int t = 0; t < 8; t++) {
 			for (int v = 0; v < 8; v++) {
-				setPrefixedInstruction(RES_START + (t * 8) + v,
+				setPrefixedInstruction(0x80 + (t * 8) + v,
 					RES,
 					targets[t],
 					(ArithmeticTarget)v);
@@ -678,17 +677,24 @@ void initInstructionSet()
 
 	#pragma region BIT
 
-		uint8_t BIT_START = 0x40;
 		for (int t = 0; t < 8; t++) {
 			for (int v = 0; v < 8; v++) {
-				setPrefixedInstruction(BIT_START + (t * 8) + v,
+				setPrefixedInstruction(0x40 + (t * 8) + v,
 					BIT,
 					(ArithmeticTarget)v,
 					targets[t]);
 			}
 		}
 
-#pragma endregion
+	#pragma endregion
+
+	#pragma region SWAP
+
+		for (int t = 0; t < 8; t++) {
+			setPrefixedInstruction(0x30 + t, SWAP, targets[t]);
+		}
+
+	#pragma endregion
 
 #pragma endregion
 }
