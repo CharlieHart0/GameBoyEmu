@@ -1797,7 +1797,7 @@ void CPU_RL(CPU& cpu, ArithmeticTarget target)
 	uint8_t bit7 = *bytePointer >> 7;
 
 	*bytePointer <<= 1;
-	if (cpu.registers.f.carry) { *bytePointer++; }
+	if (cpu.registers.f.carry) { (*bytePointer)++; }
 
 	cpu.registers.f.zero = *bytePointer == 0;
 	cpu.registers.f.subtract = false;
