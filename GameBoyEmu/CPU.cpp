@@ -1231,9 +1231,9 @@ void CPU_RLCA(CPU& cpu)
 	cpu.pc += 1;
 
 	carried = cpu.registers.a & 0b10000000;
-	carried >> 7;
+	carried >>= 7;
 
-	cpu.registers.a << 1;
+	cpu.registers.a <<= 1;
 	cpu.registers.a += carried;
 
 	cpu.registers.f.zero = false;
@@ -1249,9 +1249,9 @@ void CPU_RLA(CPU& cpu)
 	cpu.pc += 1;
 
 	carried = cpu.registers.a & 0b10000000;
-	carried >> 7;
+	carried >>= 7;
 
-	cpu.registers.a << 1;
+	cpu.registers.a <<= 1;
 	if(cpu.registers.f.carry){ cpu.registers.a += 0x01; }
 	
 
@@ -1268,7 +1268,7 @@ void CPU_RRCA(CPU& cpu)
 
 	carried = cpu.registers.a & 0b00000001;
 
-	cpu.registers.a >> 1;
+	cpu.registers.a >>= 1;
 	cpu.registers.a += carried;
 
 	cpu.registers.f.zero = false;
@@ -1284,7 +1284,7 @@ void CPU_RRA(CPU& cpu)
 
 	carried = cpu.registers.a & 0b00000001;
 
-	cpu.registers.a >> 1;
+	cpu.registers.a >>= 1;
 	if (cpu.registers.f.carry) { cpu.registers.a += 0x01; }
 
 	cpu.registers.f.zero = false;
@@ -1467,7 +1467,7 @@ void CPU_BIT(CPU& cpu, int value, ArithmeticTarget target)
 		byte = cpu.registers.l;
 		break;
 	case HL_AS_ADDRESS:
-		byte = Reg_get_16bit(cpu.registers, hl);
+		byte = MemoryBus_read_byte(cpu.bus, Reg_get_16bit(cpu.registers, hl));
 		break;
 
 
@@ -1476,7 +1476,7 @@ void CPU_BIT(CPU& cpu, int value, ArithmeticTarget target)
 		return;
 	}
 
-	byte >> value;
+	byte >>= value;
 
 	byte &= 0x01;
 
