@@ -5,8 +5,21 @@
 void CPU_step(CPU& cpu)
 {
 	uint8_t instruction_byte = MemoryBus_read_byte(cpu.bus, cpu.pc);
+	
+	if (instruction_byte == 0xCB) {
+		cpu.pc += 1;
+		instruction_byte = MemoryBus_read_byte(cpu.bus, cpu.pc);
 
-	//TODO 16 bit instrucitons
+		if (prefixedInstructions[instruction_byte].instruction != UNINITALISED) {
+			CPU_excecute(cpu, prefixedInstructions[instruction_byte]);
+		}
+		else {
+			char exceptionMessage[45];
+			snprintf(exceptionMessage, 45, "Invalid prefixed instruction byte: 0xCB %X", instruction_byte);
+			throw std::invalid_argument(exceptionMessage);
+		}
+	}
+
 	if (eightBitInstructions[instruction_byte].instruction != UNINITALISED) {
 		CPU_excecute(cpu, eightBitInstructions[instruction_byte]);
 	}

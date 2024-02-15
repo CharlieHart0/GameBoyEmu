@@ -4,7 +4,7 @@
 #include <iomanip>
 
 FullInstruction eightBitInstructions[0xFF]{};
-FullInstruction sixteenBitInstructions[0xFF]{};
+FullInstruction prefixedInstructions[0xFF]{};
 
 void initInstructionSet()
 {
@@ -651,6 +651,21 @@ void setEightBitInstruction(uint8_t instruction_byte, Instruction instruction, A
 	if (fi_ptr->instruction != UNINITALISED || fi_ptr->op1 != INVALID || fi_ptr->op2 != INVALID) {
 		std::stringstream errMsg;
 		errMsg << "Tried to set an eight bit instruction at byte: " << std::hex << 
+			(uint8_t)fi_ptr->instruction <<
+			", which has already been set!";
+		throw std::exception(errMsg.str().c_str());
+	}
+	fi_ptr->instruction = instruction;
+	fi_ptr->op1 = t1;
+	fi_ptr->op2 = t2;
+}
+
+void setPrefixedInstruction(uint8_t instruction_byte, Instruction instruction, ArithmeticTarget t1, ArithmeticTarget t2)
+{
+	FullInstruction* fi_ptr = &prefixedInstructions[instruction_byte];
+	if (fi_ptr->instruction != UNINITALISED || fi_ptr->op1 != INVALID || fi_ptr->op2 != INVALID) {
+		std::stringstream errMsg;
+		errMsg << "Tried to set a prefixed instruction at byte: 0xCB " << std::hex <<
 			(uint8_t)fi_ptr->instruction <<
 			", which has already been set!";
 		throw std::exception(errMsg.str().c_str());
