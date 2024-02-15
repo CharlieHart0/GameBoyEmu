@@ -662,6 +662,20 @@ void initInstructionSet()
 
 	#pragma endregion
 
+	#pragma region RES
+
+		uint8_t RES_START = 0x80;
+		for (int t = 0; t < 8; t++) {
+			for (int v = 0; v < 8; v++) {
+				setPrefixedInstruction(RES_START + (t * 8) + v,
+					RES,
+					targets[t],
+					(ArithmeticTarget)v);
+			}
+		}
+
+	#pragma endregion
+
 #pragma endregion
 }
 

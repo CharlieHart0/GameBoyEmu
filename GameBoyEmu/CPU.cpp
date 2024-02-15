@@ -134,6 +134,9 @@ void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 	case SET:
 		CPU_SET(cpu, fullInstruction.op1, (int) fullInstruction.op2);
 		break;
+	case RES:
+		CPU_RES(cpu, fullInstruction.op1, (int)fullInstruction.op2);
+		break;
 
 
 	default:
@@ -1374,6 +1377,55 @@ void CPU_SET(CPU& cpu, ArithmeticTarget target, int value)
 	}
 
 	*bytePointer += (1 << value);
+}
+
+void CPU_RES(CPU& cpu, ArithmeticTarget target, int value)
+{
+	cpu.pc += 2;
+	uint8_t* bytePointer = nullptr;
+
+	if (value < 0 || value > 7) {
+		throw std::invalid_argument("CPU_RES recieved invalid value!");
+		return;
+	}
+
+	switch (target) {
+	case A:
+		bytePointer = &cpu.registers.a;
+		break;
+	case B:
+		bytePointer = &cpu.registers.b;
+		break;
+	case C:
+		bytePointer = &cpu.registers.c;
+		break;
+	case D:
+		bytePointer = &cpu.registers.d;
+		break;
+	case E:
+		bytePointer = &cpu.registers.e;
+		break;
+	case H:
+		bytePointer = &cpu.registers.h;
+		break;
+	case L:
+		bytePointer = &cpu.registers.l;
+		break;
+	case HL_AS_ADDRESS:
+		bytePointer = (uint8_t*)MemoryBus_get_ptr(cpu.bus, Reg_get_16bit(cpu.registers, hl));
+		break;
+
+
+	default:
+		throw std::invalid_argument("CPU_RES recieved invalid target!");
+		return;
+	}
+
+	if (!((*bytePointer >> value) & 0x01)) {
+		return;
+	}
+
+	*bytePointer -= (1 << value);
 }
 
 #pragma endregion
