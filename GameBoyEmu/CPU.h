@@ -43,7 +43,8 @@ enum Instruction {
 	BIT,
 	SWAP,
 	SRL,  // omg is this a destiny 1 reference
-	SLA
+	SLA,
+	SRA
 };
 
 enum ArithmeticTarget {
@@ -192,6 +193,8 @@ void CPU_SWAP(CPU& cpu, ArithmeticTarget target);
 void CPU_SRL(CPU& cpu, ArithmeticTarget target);
 
 void CPU_SLA(CPU& cpu, ArithmeticTarget target);
+
+void CPU_SRA(CPU& cpu, ArithmeticTarget target);
 
 #pragma endregion
 
