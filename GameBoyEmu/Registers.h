@@ -53,7 +53,7 @@ struct Registers {
 	uint8_t c;
 	uint8_t d;
 	uint8_t e;
-	FlagsRegister f;
+	FlagsRegister f{0};
 	uint8_t h;
 	uint8_t l;
 };

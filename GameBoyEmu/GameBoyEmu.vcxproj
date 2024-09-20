@@ -70,6 +70,12 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>A:\Program Files\SDL2\include;$(ProjectDir)Vendor\ImGui\backends\;$(ProjectDir)Vendor\ImGui\;A:\Program Files\SDL2\include\;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>A:\Program Files\SDL2\include;$(ProjectDir)Vendor\ImGui\backends\;$(ProjectDir)Vendor\ImGui\;A:\Program Files\SDL2\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -104,10 +110,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>A:\Program Files\SDL2\lib\x64\SDL2.lib;A:\Program Files\SDL2\lib\x64\SDL2main.lib;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.22621.0\um\x64\OpenGL32.Lib;%(AdditionalDependencies);A:\Program Files\SDL2\lib\x64\SDL2.lib;A:\Program Files\SDL2\lib\x64\SDL2main.lib;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.22621.0\um\x64\OpenGL32.Lib</AdditionalDependencies>
+      <AdditionalOptions>/FORCE:MULTIPLE %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -118,31 +127,70 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);A:\Program Files\SDL2\lib\x64\SDL2.lib;A:\Program Files\SDL2\lib\x64\SDL2main.lib;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.22621.0\um\x64\OpenGL32.Lib</AdditionalDependencies>
+      <AdditionalOptions>/FORCE:MULTIPLE %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Arithmetic.h" />
     <ClInclude Include="CPU.h" />
+    <ClInclude Include="GbEmuWindows\GbEmuWindow.h" />
+    <ClInclude Include="GbEmuWindows\RomInfoLoader.h" />
+    <ClInclude Include="GBPallette.h" />
+    <ClInclude Include="ImGuiTexture.h" />
+    <ClInclude Include="GbEmuWindows\GraphicsInspector.h" />
     <ClInclude Include="Instructions.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="MemoryBus.h" />
     <ClInclude Include="Registers.h" />
+    <ClInclude Include="RomLoader.h" />
+    <ClInclude Include="Vendor\ImGui-FileBrowser\imfilebrowser.h" />
+    <ClInclude Include="Vendor\ImGui\backends\imgui_impl_opengl3.h" />
+    <ClInclude Include="Vendor\ImGui\backends\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="Vendor\ImGui\backends\imgui_impl_sdl2.h" />
+    <ClInclude Include="Vendor\ImGui\imconfig.h" />
+    <ClInclude Include="Vendor\ImGui\imgui.h" />
+    <ClInclude Include="Vendor\ImGui\imgui_internal.h" />
+    <ClInclude Include="Vendor\ImGui\imstb_rectpack.h" />
+    <ClInclude Include="Vendor\ImGui\imstb_textedit.h" />
+    <ClInclude Include="Vendor\ImGui\imstb_truetype.h" />
+    <ClInclude Include="Vendor\ImGui\misc\cpp\imgui_stdlib.h" />
+    <ClInclude Include="Vendor\magic-enum\magic_enum.hpp" />
+    <ClInclude Include="Vendor\stb\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Arithmetic.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
     </ClCompile>
     <ClCompile Include="CPU.cpp" />
+    <ClCompile Include="GbEmuWindows\GraphicsInspector.cpp" />
+    <ClCompile Include="GbEmuWindows\RomInfoLoader.cpp" />
     <ClCompile Include="Instructions.cpp" />
-    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Main.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Vendor\ImGui\backends\;$(ProjectDir)Vendor\ImGui\;A:\Program Files\SDL2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Vendor\ImGui\backends\;$(ProjectDir)Vendor\ImGui\;A:\Program Files\SDL2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
     <ClCompile Include="MemoryBus.cpp" />
     <ClCompile Include="Registers.cpp" />
+    <ClCompile Include="RomLoader.cpp" />
+    <ClCompile Include="Vendor\ImGui\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="Vendor\ImGui\backends\imgui_impl_sdl2.cpp" />
+    <ClCompile Include="Vendor\ImGui\imgui.cpp" />
+    <ClCompile Include="Vendor\ImGui\imgui_demo.cpp" />
+    <ClCompile Include="Vendor\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="Vendor\ImGui\imgui_tables.cpp" />
+    <ClCompile Include="Vendor\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="Vendor\ImGui\misc\cpp\imgui_stdlib.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="imgui.ini" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

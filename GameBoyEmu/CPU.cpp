@@ -70,6 +70,9 @@ void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 	case DEC16:
 		CPU_DEC16(cpu, fullInstruction.op1);
 		break;
+	case DEC:
+		CPU_DEC(cpu, fullInstruction.op1);
+		break;
 	case CCF:
 		CPU_CCF(cpu);
 		break;
@@ -1963,6 +1966,13 @@ bool CPU_LD_VALIDATION(ArithmeticTarget t1, ArithmeticTarget t2)
 	case DE:
 	case BC:
 		return t2 == d16;
+		break;
+
+	case DE_AS_ADDRESS:
+	case BC_AS_ADDRESS:
+	case HL_POS:
+	case HL_NEG:
+		return t2 == A;
 		break;
 
 

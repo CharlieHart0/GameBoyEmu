@@ -1,8 +1,9 @@
 #pragma once
 #include <cstdint>
+#include <array>
 
 struct MemoryBus {
-	uint8_t memory[0xFFFF]{};
+	std::array<uint8_t, 0xFFFF> memory{};
 
 	// 0x0000 - 0x00FF  Boot ROM during boot
 
@@ -36,3 +37,5 @@ uint8_t MemoryBus_read_byte(MemoryBus& memoryBus, uint16_t address);
 void* MemoryBus_get_ptr(MemoryBus& memoryBus, uint16_t address);
 
 void MemoryBus_write_byte(MemoryBus& memoryBus, uint16_t address, uint8_t byte);
+
+void MemoryBus_read_from_file(MemoryBus& memoryBus, const char* filepath);

@@ -1,6 +1,7 @@
 #pragma once
 #include "Registers.h"
 #include "MemoryBus.h"
+#include "RomLoader.h"
 #include <stdexcept>
 
 enum Instruction {
@@ -99,15 +100,18 @@ struct FullInstruction {
 };
 
 struct CPU {
-	Registers registers;
+	Registers registers{};
 	uint16_t pc;
 	uint16_t sp;
-	MemoryBus bus;
+	MemoryBus bus{};
+	RomLoader romLoader;
 
 	bool ime = true; //TODO should this be true by default? boot rom will probably make sure its correct anyway
 
 	bool isHalted = false;
 };
+
+extern CPU cpu{};
 
 #pragma region CPU_INSTRUCTIONS
 

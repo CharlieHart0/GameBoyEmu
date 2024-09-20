@@ -1,0 +1,6 @@
+projectKey=fdsfds
+serverUrl=http://localhost:9000
+serverVersion=10.4.0.87286
+dashboardUrl=http://localhost:9000/dashboard?id=fdsfds
+ceTaskId=5bad0287-6ba3-4958-b7cc-b5d4003d75fe
+ceTaskUrl=http://localhost:9000/api/ce/task?id=5bad0287-6ba3-4958-b7cc-b5d4003d75fe
