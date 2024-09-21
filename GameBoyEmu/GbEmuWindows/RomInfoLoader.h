@@ -2,6 +2,7 @@
 
 #include "GbEmuWindow.h"
 #include <iostream>
+#include <string>
 
 #define _CRT_SECURE_NO_WARNINGS
 

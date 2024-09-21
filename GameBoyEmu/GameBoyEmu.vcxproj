@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClInclude Include="Arithmetic.h" />
     <ClInclude Include="CPU.h" />
+    <ClInclude Include="GbEmuWindows\CPUInspector.h" />
     <ClInclude Include="GbEmuWindows\GbEmuWindow.h" />
     <ClInclude Include="GbEmuWindows\RomInfoLoader.h" />
     <ClInclude Include="GBPallette.h" />
@@ -170,6 +171,7 @@
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
     </ClCompile>
     <ClCompile Include="CPU.cpp" />
+    <ClCompile Include="GbEmuWindows\CPUInspector.cpp" />
     <ClCompile Include="GbEmuWindows\GraphicsInspector.cpp" />
     <ClCompile Include="GbEmuWindows\RomInfoLoader.cpp" />
     <ClCompile Include="Instructions.cpp" />

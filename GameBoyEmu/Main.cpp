@@ -19,6 +19,7 @@
 // Main code
 int main(int, char**)
 {
+    
     // Setup SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
     {
@@ -30,10 +31,6 @@ int main(int, char**)
   
     initInstructionSet();
     MemoryBus_read_from_file(cpu.bus, "../GameBoyEmu/roms/dmg_boot.bin");
-
-   
-
-    MemoryBus_read_from_file(cpu.bus, "../GameBoyEmu/roms/cpu_instrs.gb");
 
 
 #pragma region SDL_SETUP
@@ -119,6 +116,7 @@ int main(int, char**)
 
     // Our state
     bool show_demo_window = false;
+    bool run_gameboy_cpu = false;
 
     std::vector<GbEmuWindow*> allWindows;
 
@@ -128,6 +126,9 @@ int main(int, char**)
 
     GbEmuWindows::GraphicsInspector window_GraphicsInspector;
     allWindows.push_back(&window_GraphicsInspector);
+
+    GbEmuWindows::CPUInspector window_CPUInspector;
+    allWindows.push_back(&window_CPUInspector);
 
 
     bool show_another_window = false;
@@ -142,10 +143,11 @@ int main(int, char**)
     EMSCRIPTEN_MAINLOOP_BEGIN
 #else
 
+  
     
     for (std::vector<GbEmuWindow*>::iterator i = allWindows.begin(); i != allWindows.end(); i++)
     {
-        (*i)->Init();
+        (*i)->CPUInspector();
     }
 
     
@@ -155,7 +157,7 @@ int main(int, char**)
     {
 
 #pragma region SDL_TICK
-        //CPU_step(cpu);
+        if(run_gameboy_cpu) CPU_step(cpu);
 
         //if (cpu.bus.memory[0xff02] == 0x81)
         //{
@@ -222,8 +224,13 @@ int main(int, char**)
 
            
             if (ImGui::Button("Demo Window##xx")) { show_demo_window = true; }
-            if (ImGui::Button("Graphics Inspector##xx")) { window_GraphicsInspector.p_open = true; }
+            
             if (ImGui::Button("Rom Loader")) { window_RomLoaderInfo.p_open = true; }
+            if (ImGui::Button("CPU Inspector")) { window_CPUInspector.p_open = true; }
+            if (ImGui::Button("Graphics Inspector")) { window_GraphicsInspector.p_open = true; }
+
+
+            ImGui::Checkbox("Enable CPU", &run_gameboy_cpu);
             
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
             //if (ImGui::Button("Quit Application")) { return 0; }

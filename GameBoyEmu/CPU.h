@@ -106,14 +106,18 @@ struct CPU {
 	MemoryBus bus{};
 	RomLoader romLoader;
 
+	float desiredSpeedMultiplier = 1;
+	int cyclesSinceAtDesiredSpeed = 0;
+
 	bool ime = true; //TODO should this be true by default? boot rom will probably make sure its correct anyway
 
 	bool isHalted = false;
 };
 
-extern CPU cpu{};
+extern CPU cpu;
 
 #pragma region CPU_INSTRUCTIONS
+
 
 void CPU_step(CPU& cpu);
 

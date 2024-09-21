@@ -90,6 +90,9 @@
     <ClInclude Include="Vendor\magic-enum\magic_enum.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GbEmuWindows\CPUInspector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Registers.cpp">
@@ -141,6 +144,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GbEmuWindows\RomInfoLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GbEmuWindows\CPUInspector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

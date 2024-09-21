@@ -16,6 +16,7 @@
 
 #include "GbEmuWindows/GraphicsInspector.h"
 #include "GbEmuWindows/RomInfoLoader.h"
+#include "GbEmuWindows/CPUInspector.h"
 
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <SDL_opengles2.h>

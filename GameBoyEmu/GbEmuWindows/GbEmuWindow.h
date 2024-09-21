@@ -4,7 +4,7 @@
 class GbEmuWindow
 {
 public:
-	virtual void Init() {};
+	virtual void CPUInspector() {};
 	virtual void ShowWindow() {};
 	bool p_open = false;
 

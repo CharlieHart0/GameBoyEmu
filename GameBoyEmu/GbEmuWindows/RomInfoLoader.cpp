@@ -1,5 +1,7 @@
 #include "RomInfoLoader.h"
 #include <bitset>
+#include <iomanip>
+#include <sstream>
 
 
 namespace GbEmuWindows
@@ -80,7 +82,21 @@ namespace GbEmuWindows
                 else
                 {
                     ImGui::Text("ROM loaded! (this is a lie)");
-                    //ImGui::Text(std::string(magic_enum::enum_name((RomLoader_ValidationOutcome) cpu.romLoader.romValidationOutcome)).c_str());
+                    
+                    ImGui::Text((std::string("ROM Title: ") + cpu.romLoader.header.title).c_str());
+
+                    ImGui::Text((std::string("Licensee: ") + *cpu.romLoader.header.licenseeName).c_str());
+
+                    std::stringstream sgbFlagSs;
+                    sgbFlagSs << std::hex << (int)cpu.romLoader.header.sgbFlag;
+                    std::string sgbFlagText = "SGB Flag: 0x0" + sgbFlagSs.str();
+                    ImGui::Text(sgbFlagText.c_str());
+
+                    std::string cartTypeText = "Cart Type: ";
+                    cartTypeText += magic_enum::enum_name(cpu.romLoader.header.cartType.mainType);
+                    cartTypeText += "\nFeatures: " + cpu.romLoader.cartTypeFeaturesText();
+                    ImGui::Text(cartTypeText.c_str());
+
                 }
             }
 

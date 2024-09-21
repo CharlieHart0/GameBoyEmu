@@ -1,0 +1,144 @@
+#include "CPUInspector.h"
+#include <sstream>
+#include <iomanip>
+
+namespace GbEmuWindows
+{
+
+    CPUInspector::CPUInspector()
+    {
+        for (int i = 0; i < magic_enum::enum_count<CPU_INSPECTOR_VALUE_FIELD>();i++)
+        {
+            cachedCPUValues[(CPU_INSPECTOR_VALUE_FIELD) i] = "ERR_NOT_READ_YET";
+        }
+    }
+
+    void CPUInspector::ShowWindow()
+    {
+
+        // Demonstrate the various window flags. Typically you would just use the default!
+        static bool no_titlebar = false;
+        static bool no_scrollbar = false;
+        static bool no_menu = true;
+        static bool no_move = false;
+        static bool no_resize = true;
+        static bool no_collapse = false;
+        static bool no_close = false;
+        static bool no_nav = false;
+        static bool no_background = false;
+        static bool no_bring_to_front = false;
+        static bool unsaved_document = false;
+
+        ImGuiWindowFlags window_flags = 0;
+        if (no_titlebar)        window_flags |= ImGuiWindowFlags_NoTitleBar;
+        if (no_scrollbar)       window_flags |= ImGuiWindowFlags_NoScrollbar;
+        if (!no_menu)           window_flags |= ImGuiWindowFlags_MenuBar;
+        if (no_move)            window_flags |= ImGuiWindowFlags_NoMove;
+        if (no_resize)          window_flags |= ImGuiWindowFlags_NoResize;
+        if (no_collapse)        window_flags |= ImGuiWindowFlags_NoCollapse;
+        if (no_nav)             window_flags |= ImGuiWindowFlags_NoNav;
+        if (no_background)      window_flags |= ImGuiWindowFlags_NoBackground;
+        if (no_bring_to_front)  window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+        if (unsaved_document)   window_flags |= ImGuiWindowFlags_UnsavedDocument;
+        if (no_close)           p_open = NULL; // Don't pass our bool* to Begin
+
+        const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 650, main_viewport->WorkPos.y + 20), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiCond_FirstUseEver);
+
+
+        if (!ImGui::Begin("CPU Inspector!", &p_open, window_flags))
+        {
+            ImGui::End();
+            return;
+        }
+
+
+
+
+        ImGui::Text(update_values ? "Current CPU Values" : "CPU Values (Old, may have changed)");
+
+        if (update_values) { UpdateInspectorValues(); }
+
+        ImGui::Text("Registers:");
+        ImGui::Text((std::string("A = ") + cachedCPUValues[REG_A]).c_str());
+        ImGui::Text((std::string("B = ") + cachedCPUValues[REG_B]).c_str());
+        ImGui::Text((std::string("C = ") + cachedCPUValues[REG_C]).c_str());
+        ImGui::Text((std::string("D = ") + cachedCPUValues[REG_D]).c_str());
+        ImGui::Text((std::string("E = ") + cachedCPUValues[REG_E]).c_str());
+        ImGui::Text((std::string("F (Flags Register) = ") + cachedCPUValues[REG_FLAG_REG]).c_str());
+        ImGui::Text((std::string("H = ") + cachedCPUValues[REG_H]).c_str());
+        ImGui::Text((std::string("L = ") + cachedCPUValues[REG_L]).c_str());
+
+        ImGui::NewLine();
+        ImGui::Text("Flags Register:");
+        ImGui::Text((std::string("Zero = ") + cachedCPUValues[REG_FLAG_ZERO]).c_str());
+        ImGui::Text((std::string("Subtract = ") + cachedCPUValues[REG_FLAG_SUBTRACT]).c_str());
+        ImGui::Text((std::string("Half Carry = ") + cachedCPUValues[REG_FLAG_HALF_CARRY]).c_str());
+        ImGui::Text((std::string("Carry = ") + cachedCPUValues[REG_FLAG_CARRY]).c_str());
+
+        ImGui::NewLine();
+        ImGui::Text("Other Values:");
+        ImGui::Text((std::string("PC  = ") + cachedCPUValues[PC]).c_str());
+        ImGui::Text((std::string("SP  = ") + cachedCPUValues[SP]).c_str());
+        ImGui::Text((std::string("IME = ") + cachedCPUValues[IME]).c_str());
+        ImGui::Text((std::string("Is Halted = ") + cachedCPUValues[IS_HALTED]).c_str());
+
+
+        ImGui::Checkbox("Update Values", &update_values);
+        ImGui::SliderFloat("CPU Speed Multiplier", &cpu.desiredSpeedMultiplier, 0, 1);
+
+        ImGui::End();
+    }
+
+
+    void CPUInspector::UpdateInspectorValues()
+    {
+        Registers& registers = cpu.registers;
+        FlagsRegister& flagsregister = cpu.registers.f;
+
+        cachedCPUValues[REG_A] = hexToString(registers.a);
+        cachedCPUValues[REG_B] = hexToString(registers.b);
+        cachedCPUValues[REG_C] = hexToString(registers.c);
+        cachedCPUValues[REG_D] = hexToString(registers.d);
+        cachedCPUValues[REG_E] = hexToString(registers.e);
+        cachedCPUValues[REG_H] = hexToString(registers.h);
+        cachedCPUValues[REG_L] = hexToString(registers.l);
+        cachedCPUValues[REG_FLAG_REG] = hexToString(registers.f);
+
+        cachedCPUValues[REG_FLAG_ZERO] = boolToString(flagsregister.zero);
+        cachedCPUValues[REG_FLAG_SUBTRACT] = boolToString(flagsregister.subtract);
+        cachedCPUValues[REG_FLAG_HALF_CARRY] = boolToString(flagsregister.half_carry);
+        cachedCPUValues[REG_FLAG_CARRY] = boolToString(flagsregister.carry);
+
+        cachedCPUValues[PC] = hexToString(cpu.pc);
+        cachedCPUValues[SP] = hexToString(cpu.sp);
+
+        cachedCPUValues[IME] = boolToString(cpu.ime);
+        cachedCPUValues[IS_HALTED] = boolToString(cpu.isHalted);
+
+    }
+
+    std::string CPUInspector::hexToString(uint16_t value, bool use0x)
+    {
+        std::stringstream ss;
+        if (use0x) ss << "0x";
+        ss << std::setw(4) << std::setfill('0') << std::hex << (int)value;
+        return ss.str();
+    }
+
+    std::string CPUInspector::hexToString(uint8_t value, bool use0x)
+    {
+        std::stringstream ss;
+        if (use0x) ss << "0x";
+        ss << std::setw(2) << std::setfill('0') << std::hex << (int) value;
+        return ss.str();
+    }
+
+    std::string CPUInspector::boolToString(bool value)
+    {
+        if (value) return "TRUE";
+        return "FALSE";
+    }
+
+}

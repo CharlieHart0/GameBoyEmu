@@ -2,8 +2,20 @@
 #include "Instructions.h"
 #include "Arithmetic.h"
 
+
+CPU cpu{};
+
 void CPU_step(CPU& cpu)
 {
+	if (cpu.desiredSpeedMultiplier != 1)
+	{
+		if (cpu.desiredSpeedMultiplier < 0.0001f) { return; }
+
+		cpu.cyclesSinceAtDesiredSpeed++;
+		if (!(cpu.cyclesSinceAtDesiredSpeed >= 1 / cpu.desiredSpeedMultiplier)) return;
+	}
+	cpu.cyclesSinceAtDesiredSpeed = 0;
+
 	uint8_t instruction_byte = MemoryBus_read_byte(cpu.bus, cpu.pc);
 	
 	if (instruction_byte == 0xCB) {

@@ -1,6 +1,6 @@
 #include "MemoryBus.h"
 #include <fstream>
-#include <imgui.h>
+#include "Vendor/ImGui/imgui.h"
 
 uint8_t MemoryBus_read_byte(MemoryBus& memoryBus, uint16_t address) {
 	return memoryBus.memory[address];
