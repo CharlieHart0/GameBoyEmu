@@ -24,6 +24,9 @@ namespace GbEmuWindows
 		REG_L,
 		PC,
 		SP,
+		LAST_INSTRUCTION,
+		LAST_INSTRUCTION_OP1,
+		LAST_INSTRUCTION_OP2,
 		IME,
 		IS_HALTED
 	};
@@ -43,7 +46,8 @@ namespace GbEmuWindows
 	protected:
 
 		std::map<CPU_INSPECTOR_VALUE_FIELD, std::string> cachedCPUValues;
-		
+		std::string lastInstructionDetailsText();
+		std::string lastInstructionOpText(bool isOp1);
 	};
 
 

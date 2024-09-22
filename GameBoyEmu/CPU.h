@@ -106,6 +106,8 @@ struct CPU {
 	MemoryBus bus{};
 	RomLoader romLoader;
 
+	FullInstruction* lastCalledInstruction = nullptr;
+
 	float desiredSpeedMultiplier = 1;
 	int cyclesSinceAtDesiredSpeed = 0;
 

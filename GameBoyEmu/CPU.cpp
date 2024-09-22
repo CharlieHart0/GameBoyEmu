@@ -23,6 +23,7 @@ void CPU_step(CPU& cpu)
 		instruction_byte = MemoryBus_read_byte(cpu.bus, cpu.pc);
 
 		if (prefixedInstructions[instruction_byte].instruction != UNINITALISED) {
+			cpu.lastCalledInstruction = &prefixedInstructions[instruction_byte];
 			CPU_excecute(cpu, prefixedInstructions[instruction_byte]);
 		}
 		else {
@@ -33,6 +34,7 @@ void CPU_step(CPU& cpu)
 	}
 
 	if (eightBitInstructions[instruction_byte].instruction != UNINITALISED) {
+		cpu.lastCalledInstruction = &eightBitInstructions[instruction_byte];
 		CPU_excecute(cpu, eightBitInstructions[instruction_byte]);
 	}
 	else {

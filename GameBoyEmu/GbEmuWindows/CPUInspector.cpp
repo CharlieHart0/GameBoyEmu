@@ -21,7 +21,7 @@ namespace GbEmuWindows
         static bool no_scrollbar = false;
         static bool no_menu = true;
         static bool no_move = false;
-        static bool no_resize = true;
+        static bool no_resize = false;
         static bool no_collapse = false;
         static bool no_close = false;
         static bool no_nav = false;
@@ -69,20 +69,27 @@ namespace GbEmuWindows
         ImGui::Text((std::string("F (Flags Register) = ") + cachedCPUValues[REG_FLAG_REG]).c_str());
         ImGui::Text((std::string("H = ") + cachedCPUValues[REG_H]).c_str());
         ImGui::Text((std::string("L = ") + cachedCPUValues[REG_L]).c_str());
-
         ImGui::NewLine();
+       
         ImGui::Text("Flags Register:");
         ImGui::Text((std::string("Zero = ") + cachedCPUValues[REG_FLAG_ZERO]).c_str());
         ImGui::Text((std::string("Subtract = ") + cachedCPUValues[REG_FLAG_SUBTRACT]).c_str());
         ImGui::Text((std::string("Half Carry = ") + cachedCPUValues[REG_FLAG_HALF_CARRY]).c_str());
         ImGui::Text((std::string("Carry = ") + cachedCPUValues[REG_FLAG_CARRY]).c_str());
-
         ImGui::NewLine();
+        
         ImGui::Text("Other Values:");
         ImGui::Text((std::string("PC  = ") + cachedCPUValues[PC]).c_str());
         ImGui::Text((std::string("SP  = ") + cachedCPUValues[SP]).c_str());
         ImGui::Text((std::string("IME = ") + cachedCPUValues[IME]).c_str());
         ImGui::Text((std::string("Is Halted = ") + cachedCPUValues[IS_HALTED]).c_str());
+        ImGui::NewLine();
+        
+        ImGui::Text("Last Called Instruction:");
+        ImGui::Text((std::string("Instruction = ") + cachedCPUValues[LAST_INSTRUCTION]).c_str());
+        ImGui::Text((std::string("OP1 = ") + cachedCPUValues[LAST_INSTRUCTION_OP1]).c_str());
+        ImGui::Text((std::string("OP2 = ") + cachedCPUValues[LAST_INSTRUCTION_OP2]).c_str());
+        ImGui::NewLine();
 
 
         ImGui::Checkbox("Update Values", &update_values);
@@ -114,6 +121,10 @@ namespace GbEmuWindows
         cachedCPUValues[PC] = hexToString(cpu.pc);
         cachedCPUValues[SP] = hexToString(cpu.sp);
 
+        cachedCPUValues[LAST_INSTRUCTION] = lastInstructionDetailsText();
+        cachedCPUValues[LAST_INSTRUCTION_OP1] = lastInstructionOpText(true);
+        cachedCPUValues[LAST_INSTRUCTION_OP2] = lastInstructionOpText(false);
+
         cachedCPUValues[IME] = boolToString(cpu.ime);
         cachedCPUValues[IS_HALTED] = boolToString(cpu.isHalted);
 
@@ -139,6 +150,20 @@ namespace GbEmuWindows
     {
         if (value) return "TRUE";
         return "FALSE";
+    }
+
+    std::string CPUInspector::lastInstructionDetailsText()
+    {
+        if (cpu.lastCalledInstruction == nullptr) return std::string("None called yet");
+        return std::string(magic_enum::enum_name(cpu.lastCalledInstruction->instruction));
+    }
+
+    std::string CPUInspector::lastInstructionOpText(bool isOp1)
+    {
+        if (cpu.lastCalledInstruction == nullptr) return std::string("None Yet");
+        ArithmeticTarget& target = isOp1 ? cpu.lastCalledInstruction->op1 : cpu.lastCalledInstruction->op2;
+        if (target != INVALID) return std::string(magic_enum::enum_name(target));
+        else return std::string("");
     }
 
 }
