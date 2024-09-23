@@ -3,8 +3,12 @@
 #include <sstream>
 #include <iomanip>
 
-FullInstruction eightBitInstructions[0xFF]{};
-FullInstruction prefixedInstructions[0xFF]{};
+#include <atomic>
+
+FullInstruction eightBitInstructions[256]{};
+FullInstruction prefixedInstructions[256]{};
+
+
 
 void initInstructionSet()
 {
@@ -655,10 +659,12 @@ void initInstructionSet()
 
 		for (int t = 0; t < 8; t++) {
 			for (int v = 0; v < 8; v++) {
+				
 				setPrefixedInstruction(0xC0 + (t*8) + v,
 					SET, 
 					targets[t], 
 					(ArithmeticTarget) v);
+				
 			}
 		}
 
@@ -759,6 +765,7 @@ void initInstructionSet()
 
 void setEightBitInstruction(uint8_t instruction_byte, Instruction instruction, ArithmeticTarget t1, ArithmeticTarget t2)
 {
+	
 	FullInstruction* fi_ptr = &eightBitInstructions[instruction_byte];
 	if (fi_ptr->instruction != UNINITALISED || fi_ptr->op1 != INVALID || fi_ptr->op2 != INVALID) {
 		std::stringstream errMsg;

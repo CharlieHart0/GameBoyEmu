@@ -3,8 +3,8 @@
 #include "CPU.h"
 
 
-extern FullInstruction eightBitInstructions[0xFF];
-extern FullInstruction prefixedInstructions[0xFF];
+extern FullInstruction eightBitInstructions[256];
+extern FullInstruction prefixedInstructions[256];
 
 void initInstructionSet();
 

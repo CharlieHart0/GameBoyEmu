@@ -6,7 +6,7 @@
 
 namespace GbEmuWindows
 {
-    void RomLoaderInfo::Init(){
+    RomLoaderInfo::RomLoaderInfo(){
         
         fileDialog.SetTitle("Select ROM file");
         fileDialog.SetTypeFilters({".gb", ".rom",".h"}); // .h only for testing incorrect files

@@ -16,6 +16,7 @@
 
 
 
+
 // Main code
 int main(int, char**)
 {
@@ -31,7 +32,7 @@ int main(int, char**)
   
     initInstructionSet();
     MemoryBus_read_from_file(cpu.bus, "../GameBoyEmu/roms/dmg_boot.bin");
-
+   
 
 #pragma region SDL_SETUP
 
@@ -116,11 +117,10 @@ int main(int, char**)
 
     // Our state
     bool show_demo_window = false;
-    bool run_gameboy_cpu = false;
 
     std::vector<GbEmuWindow*> allWindows;
 
-    // various windows
+    // create and register various windows
     GbEmuWindows::RomLoaderInfo window_RomLoaderInfo;
     allWindows.push_back(&window_RomLoaderInfo);
 
@@ -130,12 +130,16 @@ int main(int, char**)
     GbEmuWindows::CPUInspector window_CPUInspector;
     allWindows.push_back(&window_CPUInspector);
 
+    GbEmuWindows::MemoryInspector window_MemoryInspector;
+    allWindows.push_back(&window_MemoryInspector);
+
 
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.3f, 0.3f, 0.3f, 1.00f);
 
     // Main loop
     bool done = false;
+    
 #ifdef __EMSCRIPTEN__
     // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
     // You may manually call LoadIniSettingsFromMemory() to load settings from your own storage.
@@ -147,17 +151,21 @@ int main(int, char**)
     
     for (std::vector<GbEmuWindow*>::iterator i = allWindows.begin(); i != allWindows.end(); i++)
     {
-        (*i)->CPUInspector();
+        (*i)->Init();
     }
 
-    
+    MemoryBus_write_byte(cpu.bus, 0xFF44, 153);
 
+    std::thread threadGbCpu(main_CPU_step);
+
+
+    // main loop
     while (!done)
 #endif
     {
 
 #pragma region SDL_TICK
-        if(run_gameboy_cpu) CPU_step(cpu);
+        
 
         //if (cpu.bus.memory[0xff02] == 0x81)
         //{
@@ -201,6 +209,8 @@ int main(int, char**)
             ImGui::ShowDemoWindow(&show_demo_window);
 
 
+        std::unique_lock<std::mutex> cpuLock(cpuAccessMutex);
+
         // update ui stuff
         for (std::vector<GbEmuWindow*>::iterator i = allWindows.begin(); i != allWindows.end(); i++)
         {
@@ -208,7 +218,7 @@ int main(int, char**)
         }
         cpu.romLoader.UiUpdate();
 
-
+       
 
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
         {
@@ -228,9 +238,13 @@ int main(int, char**)
             if (ImGui::Button("Rom Loader")) { window_RomLoaderInfo.p_open = true; }
             if (ImGui::Button("CPU Inspector")) { window_CPUInspector.p_open = true; }
             if (ImGui::Button("Graphics Inspector")) { window_GraphicsInspector.p_open = true; }
+            if (ImGui::Button("Memory Inspector")) { window_MemoryInspector.p_open = true; }
 
 
+            bool run_gameboy_cpu = run_gameboy_cpu_atomic;
             ImGui::Checkbox("Enable CPU", &run_gameboy_cpu);
+            run_gameboy_cpu_atomic = run_gameboy_cpu;
+            if (run_gameboy_cpu_atomic)ImGui::Text("CPU ON");
             
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
             //if (ImGui::Button("Quit Application")) { return 0; }
@@ -247,6 +261,8 @@ int main(int, char**)
             ImGui::End();
         }
 
+        cpuLock.unlock();
+
         // Rendering
         ImGui::Render();
         glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
@@ -258,8 +274,11 @@ int main(int, char**)
 #ifdef __EMSCRIPTEN__
     EMSCRIPTEN_MAINLOOP_END;
 #endif
+    // main loop ends
 
+    run_gameboy_cpu_atomic = false; // pause gbcpu thread so it can be killed cleanly
     cpu.romLoader.deleteRom();
+    threadGbCpu.detach();
 
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
@@ -271,4 +290,18 @@ int main(int, char**)
     SDL_Quit();
 
     return 0;
+}
+
+void main_CPU_step()
+{
+    while (true) {
+        if (run_gameboy_cpu_atomic)
+        {
+            std::lock_guard<std::mutex> lock(cpuAccessMutex);
+            CPU_step(cpu);
+            
+        }
+        
+    };
+    
 }

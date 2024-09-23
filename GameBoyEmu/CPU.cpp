@@ -4,17 +4,32 @@
 
 
 CPU cpu{};
+std::mutex cpuAccessMutex;
 
 void CPU_step(CPU& cpu)
 {
+	
+	// decide if we should run cpu or not 
+	
+
 	if (cpu.desiredSpeedMultiplier != 1)
 	{
-		if (cpu.desiredSpeedMultiplier < 0.0001f) { return; }
+		if (cpu.desiredSpeedMultiplier < 0.000000001) { return; }
 
 		cpu.cyclesSinceAtDesiredSpeed++;
 		if (!(cpu.cyclesSinceAtDesiredSpeed >= 1 / cpu.desiredSpeedMultiplier)) return;
 	}
 	cpu.cyclesSinceAtDesiredSpeed = 0;
+
+
+	// cpu step start
+
+	// cpu timing debug stuff
+#if defined (_DEBUG) && defined (DEBUG_GB_CPU_TIMER_INFO)
+	std::chrono::time_point<std::chrono::steady_clock> startPoint = std::chrono::steady_clock::now();
+#endif
+
+	// read instruction byte and do instruction
 
 	uint8_t instruction_byte = MemoryBus_read_byte(cpu.bus, cpu.pc);
 	
@@ -32,8 +47,7 @@ void CPU_step(CPU& cpu)
 			throw std::invalid_argument(exceptionMessage);
 		}
 	}
-
-	if (eightBitInstructions[instruction_byte].instruction != UNINITALISED) {
+	else if (eightBitInstructions[instruction_byte].instruction != UNINITALISED) {
 		cpu.lastCalledInstruction = &eightBitInstructions[instruction_byte];
 		CPU_excecute(cpu, eightBitInstructions[instruction_byte]);
 	}
@@ -42,6 +56,12 @@ void CPU_step(CPU& cpu)
 		snprintf(exceptionMessage, 37, "Invalid 8 bit instruction byte: %X", instruction_byte);
 		throw std::invalid_argument(exceptionMessage);
 	}
+
+	// cpu timing debug stuff
+#if defined (_DEBUG) && defined (DEBUG_GB_CPU_TIMER_INFO)
+	cpu.totalDuration += std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - startPoint).count();
+	cpu.instructionsCompleted++;
+#endif
 }
 
 void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)

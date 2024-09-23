@@ -1,9 +1,13 @@
 #pragma once
 #include <cstdint>
 #include <array>
+#include <atomic>
 
 struct MemoryBus {
 	std::array<uint8_t, 0xFFFF> memory{};
+
+	//TODO make this work
+	std::atomic<bool> wasLastReadOrWriteAllowed = true;
 
 	// 0x0000 - 0x00FF  Boot ROM during boot
 

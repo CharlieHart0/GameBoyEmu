@@ -3,7 +3,7 @@
 namespace GbEmuWindows
 {
     
-        void GraphicsInspector::Init()
+        GraphicsInspector::GraphicsInspector()
         {
             CreateNewTileInspectorTextures();
         }

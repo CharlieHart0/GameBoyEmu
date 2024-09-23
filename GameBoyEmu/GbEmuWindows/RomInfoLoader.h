@@ -16,7 +16,7 @@ namespace GbEmuWindows
 	class RomLoaderInfo : public GbEmuWindow
 	{
 	public:
-		void Init();
+		RomLoaderInfo();
 
 		void ShowWindow();
 		

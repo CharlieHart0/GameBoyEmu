@@ -143,6 +143,7 @@
     <ClInclude Include="CPU.h" />
     <ClInclude Include="GbEmuWindows\CPUInspector.h" />
     <ClInclude Include="GbEmuWindows\GbEmuWindow.h" />
+    <ClInclude Include="GbEmuWindows\MemoryInspector.h" />
     <ClInclude Include="GbEmuWindows\RomInfoLoader.h" />
     <ClInclude Include="GBPallette.h" />
     <ClInclude Include="ImGuiTexture.h" />
@@ -173,6 +174,7 @@
     <ClCompile Include="CPU.cpp" />
     <ClCompile Include="GbEmuWindows\CPUInspector.cpp" />
     <ClCompile Include="GbEmuWindows\GraphicsInspector.cpp" />
+    <ClCompile Include="GbEmuWindows\MemoryInspector.cpp" />
     <ClCompile Include="GbEmuWindows\RomInfoLoader.cpp" />
     <ClCompile Include="Instructions.cpp" />
     <ClCompile Include="Main.cpp">

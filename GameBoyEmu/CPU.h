@@ -3,6 +3,13 @@
 #include "MemoryBus.h"
 #include "RomLoader.h"
 #include <stdexcept>
+#include <mutex>
+
+#define DEBUG_GB_CPU_TIMER_INFO
+
+#if defined (_DEBUG) && defined (DEBUG_GB_CPU_TIMER_INFO)
+#include<chrono>
+#endif
 
 enum Instruction {
 	UNINITALISED,
@@ -108,12 +115,17 @@ struct CPU {
 
 	FullInstruction* lastCalledInstruction = nullptr;
 
-	float desiredSpeedMultiplier = 1;
+	double desiredSpeedMultiplier = 1; // 0.000005 in debug is okay
 	int cyclesSinceAtDesiredSpeed = 0;
 
 	bool ime = true; //TODO should this be true by default? boot rom will probably make sure its correct anyway
 
 	bool isHalted = false;
+
+#if defined (_DEBUG) && defined (DEBUG_GB_CPU_TIMER_INFO)
+	unsigned long int instructionsCompleted = 0;
+	unsigned long int totalDuration = 0;
+#endif
 };
 
 extern CPU cpu;

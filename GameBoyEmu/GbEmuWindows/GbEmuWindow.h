@@ -4,7 +4,8 @@
 class GbEmuWindow
 {
 public:
-	virtual void CPUInspector() {};
+	// this shouldnt be used? should call inherited class constructor. too scared to commit to removing this method atm.
+	virtual void Init() {};
 	virtual void ShowWindow() {};
 	bool p_open = false;
 

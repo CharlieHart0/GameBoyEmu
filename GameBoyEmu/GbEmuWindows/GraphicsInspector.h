@@ -15,7 +15,7 @@ namespace GbEmuWindows
 	class GraphicsInspector : public GbEmuWindow
 	{
 	public:
-		void Init();
+		GraphicsInspector();
 
 		void ShowWindow();
 

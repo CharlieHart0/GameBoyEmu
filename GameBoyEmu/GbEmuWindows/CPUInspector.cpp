@@ -93,7 +93,28 @@ namespace GbEmuWindows
 
 
         ImGui::Checkbox("Update Values", &update_values);
-        ImGui::SliderFloat("CPU Speed Multiplier", &cpu.desiredSpeedMultiplier, 0, 1);
+        
+        ImGui::PushTextWrapPos(ImGui::GetWindowWidth());
+        ImGui::PushItemWidth(100);
+        ImGui::InputDouble("CPU Speed Multiplier", &cpu.desiredSpeedMultiplier);
+        ImGui::PopItemWidth();
+        if (cpu.desiredSpeedMultiplier > 1) ImGui::TextColored(ImVec4(0.921f, 0.007f, 0.007f, 1), "Time capped at 1x speed as the device's capacitors are insufficiently fluxed.");
+        ImGui::PopTextWrapPos();
+        
+        if (ImGui::Button("1 x Speed (Realtime)")) cpu.desiredSpeedMultiplier = 1;
+        if (ImGui::Button("1*10^-4 x Speed (Kinda Slow)")) cpu.desiredSpeedMultiplier = 0.0001;
+        if (ImGui::Button("1*10^-5 x Speed (Slow)")) cpu.desiredSpeedMultiplier = 0.00001;
+        if (ImGui::Button("1*10^-6 x Speed (Very Slow)")) cpu.desiredSpeedMultiplier = 0.000001;
+        
+
+#if defined (_DEBUG) && defined (DEBUG_GB_CPU_TIMER_INFO)
+        ImGui::Text((std::string("Instructions Completed: ") + std::to_string(cpu.instructionsCompleted)).c_str());
+        ImGui::Text((std::string("Total Duration (ns): ") + std::to_string(cpu.totalDuration)).c_str());
+        if (cpu.instructionsCompleted != 0)
+        {
+            ImGui::Text((std::string("Avg Step Duration (ns): ") + std::to_string(cpu.totalDuration / cpu.instructionsCompleted)).c_str());
+        }
+#endif
 
         ImGui::End();
     }

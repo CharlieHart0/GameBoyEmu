@@ -93,6 +93,9 @@
     <ClInclude Include="GbEmuWindows\CPUInspector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GbEmuWindows\MemoryInspector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Registers.cpp">
@@ -147,6 +150,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GbEmuWindows\CPUInspector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GbEmuWindows\MemoryInspector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
