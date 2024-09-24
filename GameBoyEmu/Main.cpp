@@ -295,11 +295,11 @@ int main(int, char**)
 void main_CPU_step()
 {
     while (true) {
-        if (run_gameboy_cpu_atomic)
+        if (run_gameboy_cpu_atomic || cpu.doOnlyOneInstruction)
         {
             std::lock_guard<std::mutex> lock(cpuAccessMutex);
             CPU_step(cpu);
-            
+            cpu.doOnlyOneInstruction = false;
         }
         
     };

@@ -111,19 +111,19 @@ namespace GbEmuWindows
                     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
 
                     bool isSelectedCell = addressOfCell == selectedAddress;
-                    if (isSelectedCell)
-                    {
-                        ImGui::PushStyleColor(ImGuiCol_Button, imgui_col_255_f(228, 90, 16, 255));
-                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 0, 0, 1));
-                    }
+                    bool isCellColoured = false;
+                    bool isCellTextColoured = false;
+                    bool hasTooltip = false;
 
+                    setButtonStyle(addressOfCell, isCellColoured, isSelectedCell, isCellTextColoured, hasTooltip);
+                    
+                    
                     if (ImGui::Button(hexToString(MemoryBus_read_byte(cpu.bus,addressOfCell),false).c_str(), ImVec2(18, 13))) selectedAddress = addressOfCell;
+                    
+                    popButtonStyle(isCellColoured, isCellTextColoured);
 
-                    if (isSelectedCell)
-                    {
-                        ImGui::PopStyleColor();
-                        ImGui::PopStyleColor();
-                    }
+                    if (hasTooltip) addButtonTooltip(addressOfCell);
+
                     ImGui::PopStyleVar();
                     ImGui::PopID();
                 }
@@ -184,6 +184,18 @@ namespace GbEmuWindows
             }
         }
 
+        // search bar
+        {
+            ImGui::Text("Jump to: 0x"); ImGui::SameLine();
+            ImGui::PushItemWidth(40);
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+            ImGui::InputText("##memory_ins_jump_to_input_text", jumpToText, 5); ImGui::SameLine();
+            ImGui::PopItemWidth();
+            if(ImGui::Button("Enter")) jumpToAddress(std::string(jumpToText));
+            ImGui::PopStyleVar();
+
+        }
+
 
         //if (update_values) { UpdateInspectorValues(); }
 
@@ -199,11 +211,14 @@ namespace GbEmuWindows
             tableoffset = selectedAddress & 0xFFF0;
         }
         
-
-        uint8_t selected_value = MemoryBus_read_byte(cpu.bus, selectedAddress);
         ImGui::Text((std::string("Selected Address: ") + hexToString(selectedAddress)).c_str());
-        ImGui::Text( ( std::string("Value (hex): ") + hexToString(selected_value) ).c_str());
-        ImGui::Text((std::string("Value (dec): ") + std::to_string(selected_value)).c_str());
+        ImGui::Text((std::string("Address Label: ") + getAddressLabel(selectedAddress)).c_str());
+
+        // display value in different formats
+        uint8_t selected_value = MemoryBus_read_byte(cpu.bus, selectedAddress);
+        ImGui::Text("Value as:");
+        ImGui::Text( ( std::string("Hex: ") + hexToString(selected_value) ).c_str());
+        ImGui::Text((std::string("Dec: ") + std::to_string(selected_value)).c_str());
         if (ImGui::BeginTable("memory_inspector_value_binary", 9))
         {
 
@@ -231,7 +246,10 @@ namespace GbEmuWindows
             }
             ImGui::EndTable();
         }
-        ImGui::Text((  std::string("Value (ASCII char): ") += (char)selected_value ).c_str());
+        ImGui::Text((  std::string("ASCII char: ") += (char)selected_value ).c_str());
+        ImGui::Text((std::string("8-bit Instruction: ") + instructionByteToFullDetails(selected_value)).c_str());
+        ImGui::Text((std::string("0xCB Prefixed Instruction: ") + instructionByteToFullDetails(selected_value,true)).c_str());
+     
 
 
 
@@ -264,15 +282,175 @@ namespace GbEmuWindows
 
     std::string MemoryInspector::boolToString(bool value)
     {
-        if (value) return "TRUE";
-        return "FALSE";
+        return value ? "TRUE" : "FALSE";
+    }
+
+    void MemoryInspector::jumpToAddress(uint16_t address)
+    {
+        selectedAddress = address;
+    }
+
+    void MemoryInspector::jumpToAddress(std::string address)
+    {
+        for (auto i = address.begin(); i != address.end(); i++)
+        {
+            if (!isHexChar(*i)) return;
+        }
+        jumpToAddress(std::stoi(address, 0, 16));
     }
 
     bool MemoryInspector::getBitFromByte(uint8_t byte, uint8_t pos)
     {
         // TODO should i throw an error here? not sure
-        if (pos > 7) return false;
-        return (byte >> pos) & 1;
+        return pos > 7 ? false : (byte >> pos) & 1;
+    }
+
+    std::string MemoryInspector::instructionByteToFullDetails(uint8_t byte, bool prefixed)
+    {
+        FullInstruction& ins = prefixed ? prefixedInstructions[byte] : eightBitInstructions[byte];
+        return std::string(instructionDetailsText(ins) + " " + instructionOpText(ins,true) + " " + instructionOpText(ins, false));
+    }
+
+    std::string MemoryInspector::instructionDetailsText(FullInstruction& ins)
+    {
+        return std::string(magic_enum::enum_name(ins.instruction));
+    }
+
+    std::string MemoryInspector::instructionOpText(FullInstruction& ins,bool isOp1)
+    {
+        ArithmeticTarget& target = isOp1 ? ins.op1 : ins.op2;
+        if (target != INVALID) return std::string(magic_enum::enum_name(target));
+        else return std::string("---");
+    }
+
+    bool MemoryInspector::isHexChar(char c)
+    {
+        if((48 <= c) && (57 >= c)) return true;
+        if((65 <= c) && (70 >= c)) return true;
+        if((97 <= c) && (102 >= c)) return true;
+        return false;
+    }
+
+    std::string MemoryInspector::getAddressLabel(uint16_t addr)
+    {
+        std::string label = "";
+        if (rangeIncInc(0x0000, addr, 0x3FFF))
+        {
+            label += "ROM bank 00";
+        }
+        else if (rangeIncInc(0x4000, addr, 0x7FFF))
+        {
+            label += "ROM bank X";
+        }
+        else if (rangeIncInc(0x8000, addr, 0x9FFF))
+        {
+            label += "Video RAM";
+        }
+        else if (rangeIncInc(0xA000, addr, 0xBFFF))
+        {
+            label += "External RAM (if on cart)";
+        }
+        else if (rangeIncInc(0xC000, addr, 0xCFFF))
+        {
+            label += "Work RAM (WRAM)";
+        }
+        else if (rangeIncInc(0xd000, addr, 0xdFFF))
+        {
+            label += "Work RAM 2 - Electric Boogaloo";
+        }
+        else if (rangeIncInc(0xE000, addr, 0xFDFF))
+        {
+            label += "Echo RAM (use prohibited)";
+        }
+        else if (rangeIncInc(0xFE00, addr, 0xFE9F))
+        {
+            label += "Object Attribute Memory";
+        }
+        else if (rangeIncInc(0xFEA0, addr, 0xFEFF))
+        {
+            label += "Unusable (prohibited)";
+        }
+        else if (rangeIncInc(0xFF00, addr, 0xFF7F))
+        {
+            label += "IO Registers";
+        }
+        else if (rangeIncInc(0xFF80, addr, 0xFFFE))
+        {
+            label += "High RAM (HRAM)";
+        }
+        else if ( 0xFFFF == addr )
+        {
+            label += "Interrupt Enable Register (IE)";
+        }
+        else
+        {
+            return "ERROR";
+        }
+        return label;
+    }
+
+    void MemoryInspector::addButtonTooltip(uint16_t addr)
+    {
+        if (ImGui::BeginItemTooltip())
+        {
+            ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+            ImGui::TextUnformatted(curButtonTooltip.c_str());
+            ImGui::PopTextWrapPos();
+            ImGui::EndTooltip();
+        }
+    }
+
+    
+
+    // only isSelected has been set so far
+    void MemoryInspector::setButtonStyle(uint16_t addr, bool& isColoured, bool& isSelected, bool& isTextColoured, bool& hasTooltip)
+    {
+        if (isSelected)
+        {
+            // user selected
+            isColoured = true;
+            ImGui::PushStyleColor(ImGuiCol_Button, imgui_col_255_f(228, 90, 16, 255));
+            isTextColoured = true;
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 0, 0, 1));
+            hasTooltip = true;
+            curButtonTooltip = "Currently Selected Byte";
+        }
+        else if (addr == cpu.pc)
+        {
+            // program counter
+            isColoured = true;
+            ImGui::PushStyleColor(ImGuiCol_Button, imgui_col_255_f(216, 160, 223, 255));
+            isTextColoured = true;
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 0, 0, 1));
+            hasTooltip = true;
+            curButtonTooltip = "Program Counter Location";
+        }
+        else if (addr == cpu.sp)
+        {
+            // stack pointer
+            isColoured = true;
+            ImGui::PushStyleColor(ImGuiCol_Button, imgui_col_255_f(99, 20, 245, 255));
+            isTextColoured = true;
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+            hasTooltip = true;
+            curButtonTooltip = "Stack Pointer Location";
+        }
+        else if (addr > cpu.sp)
+        {
+            // in stack (not sp)
+            isColoured = true;
+            ImGui::PushStyleColor(ImGuiCol_Button, imgui_col_255_f(164, 116, 252, 255));
+            isTextColoured = true;
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+            hasTooltip = true;
+            curButtonTooltip = "Part of stack";
+        }
+    }
+
+    void MemoryInspector::popButtonStyle(bool& isColoured,bool& isTextColoured)
+    {
+        if (isColoured) ImGui::PopStyleColor(); 
+        if (isTextColoured) ImGui::PopStyleColor();
     }
 
    

@@ -116,6 +116,8 @@ namespace GbEmuWindows
         }
 #endif
 
+        if (ImGui::Button("Tick CPU")) cpu.doOnlyOneInstruction = true;
+
         ImGui::End();
     }
 
@@ -184,7 +186,7 @@ namespace GbEmuWindows
         if (cpu.lastCalledInstruction == nullptr) return std::string("None Yet");
         ArithmeticTarget& target = isOp1 ? cpu.lastCalledInstruction->op1 : cpu.lastCalledInstruction->op2;
         if (target != INVALID) return std::string(magic_enum::enum_name(target));
-        else return std::string("");
+        else return std::string("---");
     }
 
 }

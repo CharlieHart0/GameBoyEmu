@@ -4,6 +4,7 @@
 #include "RomLoader.h"
 #include <stdexcept>
 #include <mutex>
+#include <atomic>
 
 #define DEBUG_GB_CPU_TIMER_INFO
 
@@ -113,14 +114,16 @@ struct CPU {
 	MemoryBus bus{};
 	RomLoader romLoader;
 
-	FullInstruction* lastCalledInstruction = nullptr;
-
-	double desiredSpeedMultiplier = 1; // 0.000005 in debug is okay
-	int cyclesSinceAtDesiredSpeed = 0;
-
 	bool ime = true; //TODO should this be true by default? boot rom will probably make sure its correct anyway
 
 	bool isHalted = false;
+
+
+	// debugging / inspectors stuff
+	FullInstruction* lastCalledInstruction = nullptr;
+	double desiredSpeedMultiplier = 1; // ~0.000001 in debug is okay
+	int cyclesSinceAtDesiredSpeed = 0;
+	std::atomic<bool> doOnlyOneInstruction = false;
 
 #if defined (_DEBUG) && defined (DEBUG_GB_CPU_TIMER_INFO)
 	unsigned long int instructionsCompleted = 0;
