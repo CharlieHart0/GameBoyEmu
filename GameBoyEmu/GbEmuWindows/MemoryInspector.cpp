@@ -50,6 +50,9 @@ namespace GbEmuWindows
             return;
         }
 
+        tableoffset = std::min(tableoffset, maxDisplayOffset);
+
+
         ImGui::Columns(2, NULL, false);
         ImGui::SetColumnWidth(0, 480);
 
@@ -61,10 +64,12 @@ namespace GbEmuWindows
             ImGui::PopTextWrapPos();
             ImGui::EndTooltip();
         }*/
+        uint16_t lastViewableAddress = tableoffset + (0x10 * GB_MEMORY_INSPECTOR_MEMAREA_ROWS) -1;
         
-
+        // memory area table thing
         if (ImGui::BeginTable("memory_inspector_memory_area", 17))
         {
+            
             
             // add table headers
             {
@@ -89,7 +94,7 @@ namespace GbEmuWindows
                 ImGui::TableHeadersRow();
             }
 
-            uint16_t tableoffset = 0x0000;
+            
 
             for (int row = 0; row < GB_MEMORY_INSPECTOR_MEMAREA_ROWS; row++)
             {
@@ -101,9 +106,24 @@ namespace GbEmuWindows
                 {
                     uint16_t addressOfCell = tableoffset + (0x10 * row) + insidecol;
                     ImGui::TableNextColumn();
+
                     ImGui::PushID((std::string("memory_ins_button") + std::string(std::to_string((row * 16) + insidecol))).c_str());
                     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+
+                    bool isSelectedCell = addressOfCell == selectedAddress;
+                    if (isSelectedCell)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Button, imgui_col_255_f(228, 90, 16, 255));
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 0, 0, 1));
+                    }
+
                     if (ImGui::Button(hexToString(MemoryBus_read_byte(cpu.bus,addressOfCell),false).c_str(), ImVec2(18, 13))) selectedAddress = addressOfCell;
+
+                    if (isSelectedCell)
+                    {
+                        ImGui::PopStyleColor();
+                        ImGui::PopStyleColor();
+                    }
                     ImGui::PopStyleVar();
                     ImGui::PopID();
                 }
@@ -113,9 +133,73 @@ namespace GbEmuWindows
             ImGui::EndTable();
         }
 
-        if (update_values) { UpdateInspectorValues(); }
+        // scrolling buttons
+        {
+            if (ImGui::Button(" - 0x1000"))
+            {
+                tableoffset -= 0x1000;
+                selectedAddress -= 0x1000;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button(" - 0x100"))
+            {
+                tableoffset -= 0x100;
+                selectedAddress -= 0x100;
+            }
+            ImGui::SameLine();
+            // - 0x10 button is unavailable at the start of the memory, as it would break stuff
+            if (tableoffset == 0x0000) { ImGui::Button("-------"); ImGui::SameLine(); }
+            else if (ImGui::Button(" - 0x10"))
+            {
+                tableoffset -= 0x10;
+                if (selectedAddress > tableoffset + 0xF0) selectedAddress -= 0x10;
+            }
+            ImGui::SameLine();
+
+            //if (ImGui::Button(" - 0x1")) tableoffset -= 0x1;
+            ImGui::Text("    "); ImGui::SameLine(); // spacer
+            //if (ImGui::Button(" + 0x1")) tableoffset -= 0x1;
+
+            // + 0x10 button is unavailable at the end of the memory, as it would break stuff
+            if (tableoffset == 0xff00) { ImGui::Button("-------"); ImGui::SameLine(); }
+            else
+            {
+                if (ImGui::Button(" + 0x10"))
+                {
+                    tableoffset += 0x10;
+                    if (selectedAddress < tableoffset) selectedAddress += 0x10;
+                }
+                ImGui::SameLine();
+            }
+            if (ImGui::Button(" + 0x100"))
+            {
+                tableoffset += 0x100;
+                selectedAddress += 0x100;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button(" + 0x1000"))
+            {
+                tableoffset += 0x1000;
+                selectedAddress += 0x1000;
+            }
+        }
+
+
+        //if (update_values) { UpdateInspectorValues(); }
 
         ImGui::NextColumn();
+        if (ImGui::Button("|<")) selectedAddress = 0x0000; ImGui::SameLine();
+        if (ImGui::Button("<")) selectedAddress--; ImGui::SameLine();
+        if (ImGui::Button(">")) selectedAddress++; ImGui::SameLine();
+        if (ImGui::Button(">|")) selectedAddress = 0xFFFF;
+
+        // selected byte is not on screen
+        if (selectedAddress < tableoffset || selectedAddress > lastViewableAddress)
+        {
+            tableoffset = selectedAddress & 0xFFF0;
+        }
+        
+
         uint8_t selected_value = MemoryBus_read_byte(cpu.bus, selectedAddress);
         ImGui::Text((std::string("Selected Address: ") + hexToString(selectedAddress)).c_str());
         ImGui::Text( ( std::string("Value (hex): ") + hexToString(selected_value) ).c_str());

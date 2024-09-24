@@ -4,7 +4,7 @@
 #include <atomic>
 
 struct MemoryBus {
-	std::array<uint8_t, 0xFFFF> memory{};
+	std::array<uint8_t, 0xFFFF + 1> memory{};
 
 	//TODO make this work
 	std::atomic<bool> wasLastReadOrWriteAllowed = true;

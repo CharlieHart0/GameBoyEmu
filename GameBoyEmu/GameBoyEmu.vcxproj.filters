@@ -96,6 +96,9 @@
     <ClInclude Include="GbEmuWindows\MemoryInspector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ImGuiHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Registers.cpp">

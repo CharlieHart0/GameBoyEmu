@@ -4,6 +4,7 @@
 #include <array>
 #include "../CPU.h"
 #include "../Vendor/ImGui/imgui.h"
+#include "../ImGuiHelpers.h"
 #include "GbEmuWindow.h"
 
 #define GB_MEMORY_INSPECTOR_MEMAREA_ROWS 16
@@ -27,6 +28,8 @@ namespace GbEmuWindows
 		bool update_values = true;
 	protected:
 		uint16_t selectedAddress = 0x0000;
+		uint16_t tableoffset = 0x0000;
+		uint16_t maxDisplayOffset = 0 - (0x10 * GB_MEMORY_INSPECTOR_MEMAREA_ROWS);
 		bool getBitFromByte(uint8_t byte, uint8_t pos);
 
 	};
