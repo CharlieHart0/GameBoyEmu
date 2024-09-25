@@ -11,7 +11,7 @@
 #include "../Vendor/ImGui/imgui.h"
 #include "../Vendor/ImGui-FileBrowser/imfilebrowser.h"
 
-namespace GbEmuWindows
+namespace appwindows
 {
 	class RomLoaderInfo : public GbEmuWindow
 	{

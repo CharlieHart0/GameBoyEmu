@@ -2,7 +2,7 @@
 #include <sstream>
 #include <iomanip>
 
-namespace GbEmuWindows
+namespace appwindows
 {
 
     MemoryInspector::MemoryInspector()
@@ -16,7 +16,7 @@ namespace GbEmuWindows
         // Demonstrate the various window flags. Typically you would just use the default!
         static bool no_titlebar = false;
         static bool no_scrollbar = false;
-        static bool no_menu = true;
+        static bool no_menu = false;
         static bool no_move = false;
         static bool no_resize = false;
         static bool no_collapse = false;
@@ -49,6 +49,37 @@ namespace GbEmuWindows
             ImGui::End();
             return;
         }
+
+        
+        std::cout << std::filesystem::current_path();
+
+        bool b = false;
+        // Menu
+        if (ImGui::BeginMenuBar())
+        {
+            if (ImGui::BeginMenu("Menu"))
+            {
+                ImGui::MenuItem("Main menu bar", NULL, &b);
+                if (ImGui::Button("add bookmark")) memoryinspector::bookmark::CreateBookmark({"Dir1","DIR2","bookmarkfile"}, 0xF69F);
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu("Examples"))
+            {
+                ImGui::MenuItem("Main menu bar", NULL, &b);
+                
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu("Help"))
+            {
+                ImGui::MenuItem("Metrics", NULL, &b);
+                
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenuBar();
+        }
+
+
+
 
         tableoffset = std::min(tableoffset, maxDisplayOffset);
 
@@ -447,6 +478,12 @@ namespace GbEmuWindows
             setButtonStyle_SingleType(imgui_col_255_f(164, 116, 252, 255), ImVec4(1, 1, 1, 1),
                 "Part of stack", isColoured, isTextColoured, hasTooltip);
         }
+
+
+
+        // default tooltip (memory area descriptor)
+        hasTooltip = true;
+        curButtonTooltips.push_back(getAddressLabel(addr));
     }
 
     void MemoryInspector::popButtonStyle(bool& isColoured,bool& isTextColoured)

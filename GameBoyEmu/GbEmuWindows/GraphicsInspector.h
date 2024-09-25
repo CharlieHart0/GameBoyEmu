@@ -8,7 +8,7 @@
 #include "../Vendor/ImGui/imgui.h"
 #include "GbEmuWindow.h"
 
-namespace GbEmuWindows
+namespace appwindows
 {
 	GBPalette palette_default({8,24,32,255}, {52, 104, 86,255}, {136, 192, 112,255}, {224, 248, 208,255});
 

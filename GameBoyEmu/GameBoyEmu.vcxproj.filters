@@ -99,6 +99,9 @@
     <ClInclude Include="ImGuiHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GbEmuWindows\MemoryInsp_Bookmarks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Registers.cpp">
@@ -156,6 +159,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GbEmuWindows\MemoryInspector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GbEmuWindows\MemoryInsp_Bookmarks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

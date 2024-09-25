@@ -1,6 +1,6 @@
 #include "GraphicsInspector.h"
 
-namespace GbEmuWindows
+namespace appwindows
 {
     
         GraphicsInspector::GraphicsInspector()

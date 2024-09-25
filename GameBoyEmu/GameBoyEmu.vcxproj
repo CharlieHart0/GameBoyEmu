@@ -110,7 +110,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/std:c++20 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,7 +128,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,6 +144,7 @@
     <ClInclude Include="CPU.h" />
     <ClInclude Include="GbEmuWindows\CPUInspector.h" />
     <ClInclude Include="GbEmuWindows\GbEmuWindow.h" />
+    <ClInclude Include="GbEmuWindows\MemoryInsp_Bookmarks.h" />
     <ClInclude Include="ImGuiHelpers.h" />
     <ClInclude Include="GbEmuWindows\MemoryInspector.h" />
     <ClInclude Include="GbEmuWindows\RomInfoLoader.h" />
@@ -176,6 +178,7 @@
     <ClCompile Include="GbEmuWindows\CPUInspector.cpp" />
     <ClCompile Include="GbEmuWindows\GraphicsInspector.cpp" />
     <ClCompile Include="GbEmuWindows\MemoryInspector.cpp" />
+    <ClCompile Include="GbEmuWindows\MemoryInsp_Bookmarks.cpp" />
     <ClCompile Include="GbEmuWindows\RomInfoLoader.cpp" />
     <ClCompile Include="Instructions.cpp" />
     <ClCompile Include="Main.cpp">

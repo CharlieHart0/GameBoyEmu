@@ -6,7 +6,7 @@
 #include "../Vendor/ImGui/imgui.h"
 #include "GbEmuWindow.h"
 
-namespace GbEmuWindows
+namespace appwindows
 {
 	enum CPU_INSPECTOR_VALUE_FIELD
 	{

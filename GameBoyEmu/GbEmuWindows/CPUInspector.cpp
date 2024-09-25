@@ -2,7 +2,7 @@
 #include <sstream>
 #include <iomanip>
 
-namespace GbEmuWindows
+namespace appwindows
 {
 
     CPUInspector::CPUInspector()

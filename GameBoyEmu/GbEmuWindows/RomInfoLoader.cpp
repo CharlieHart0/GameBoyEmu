@@ -4,7 +4,7 @@
 #include <sstream>
 
 
-namespace GbEmuWindows
+namespace appwindows
 {
     RomLoaderInfo::RomLoaderInfo(){
         

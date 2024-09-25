@@ -20,7 +20,7 @@
 // Main code
 int main(int, char**)
 {
-    
+   
     // Setup SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
     {
@@ -121,16 +121,16 @@ int main(int, char**)
     std::vector<GbEmuWindow*> allWindows;
 
     // create and register various windows
-    GbEmuWindows::RomLoaderInfo window_RomLoaderInfo;
+    appwindows::RomLoaderInfo window_RomLoaderInfo;
     allWindows.push_back(&window_RomLoaderInfo);
 
-    GbEmuWindows::GraphicsInspector window_GraphicsInspector;
+    appwindows::GraphicsInspector window_GraphicsInspector;
     allWindows.push_back(&window_GraphicsInspector);
 
-    GbEmuWindows::CPUInspector window_CPUInspector;
+    appwindows::CPUInspector window_CPUInspector;
     allWindows.push_back(&window_CPUInspector);
 
-    GbEmuWindows::MemoryInspector window_MemoryInspector;
+    appwindows::MemoryInspector window_MemoryInspector;
     allWindows.push_back(&window_MemoryInspector);
 
 

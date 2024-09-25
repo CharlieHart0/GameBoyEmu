@@ -7,10 +7,13 @@
 #include "../Vendor/ImGui/imgui.h"
 #include "../ImGuiHelpers.h"
 #include "GbEmuWindow.h"
+#include "MemoryInsp_Bookmarks.h"
+#include <filesystem>
+#include <iostream>
 
 #define GB_MEMORY_INSPECTOR_MEMAREA_ROWS 16
 
-namespace GbEmuWindows
+namespace appwindows
 {
 	
 
