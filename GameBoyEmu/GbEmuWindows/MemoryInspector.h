@@ -35,6 +35,7 @@ namespace GbEmuWindows
 		uint16_t tableoffset = 0x0000;
 		char jumpToText[5] = "0000";
 		std::vector<std::string> curButtonTooltips;
+		std::vector<std::string> selectedAddrTags;
 
 		// overflow expected and used here, maybe that isnt the right thing to do
 		uint16_t maxDisplayOffset = 0 - (0x10 * GB_MEMORY_INSPECTOR_MEMAREA_ROWS);

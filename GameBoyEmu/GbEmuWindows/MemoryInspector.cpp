@@ -69,7 +69,7 @@ namespace GbEmuWindows
         // memory area table thing
         if (ImGui::BeginTable("memory_inspector_memory_area", 17))
         {
-            
+            selectedAddrTags.clear();
             
             // add table headers
             {
@@ -117,6 +117,7 @@ namespace GbEmuWindows
 
                     setButtonStyle(addressOfCell, isCellColoured, isSelectedCell, isCellTextColoured, hasTooltip);
                     
+                    if (isSelectedCell) selectedAddrTags = curButtonTooltips;
                     
                     if (ImGui::Button(hexToString(MemoryBus_read_byte(cpu.bus,addressOfCell),false).c_str(), ImVec2(18, 13))) selectedAddress = addressOfCell;
                     
@@ -253,6 +254,16 @@ namespace GbEmuWindows
         ImGui::Text((  std::string("ASCII char: ") += (char)selected_value ).c_str());
         ImGui::Text((std::string("8-bit Instruction: ") + instructionByteToFullDetails(selected_value)).c_str());
         ImGui::Text((std::string("0xCB Prefixed Instruction: ") + instructionByteToFullDetails(selected_value,true)).c_str());
+
+        if (selectedAddrTags.size() > 1)
+        {
+            ImGui::NewLine();
+            ImGui::Text("Address Is:");
+            for (auto i = selectedAddrTags.begin() +1; i != selectedAddrTags.end(); i++)
+            {
+                ImGui:: Text((*i).c_str());
+            }
+        }
      
 
 
