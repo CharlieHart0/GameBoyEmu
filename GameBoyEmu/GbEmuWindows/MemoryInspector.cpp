@@ -122,7 +122,7 @@ namespace GbEmuWindows
                     
                     popButtonStyle(isCellColoured, isCellTextColoured);
 
-                    if (hasTooltip) addButtonTooltip(addressOfCell);
+                    if (hasTooltip) addButtonTooltips(addressOfCell);
 
                     ImGui::PopStyleVar();
                     ImGui::PopID();
@@ -186,13 +186,17 @@ namespace GbEmuWindows
 
         // search bar
         {
-            ImGui::Text("Jump to: 0x"); ImGui::SameLine();
+            ImGui::NewLine();
+            ImGui::Text("Jump to:"); 
+            ImGui::Text("0x"); ImGui::SameLine();
             ImGui::PushItemWidth(40);
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
             ImGui::InputText("##memory_ins_jump_to_input_text", jumpToText, 5); ImGui::SameLine();
             ImGui::PopItemWidth();
             if(ImGui::Button("Enter")) jumpToAddress(std::string(jumpToText));
             ImGui::PopStyleVar();
+            if (ImGui::Button("Program Counter")) jumpToAddress(cpu.pc);
+            if (ImGui::Button("Stack Pointer")) jumpToAddress(cpu.sp);
 
         }
 
@@ -389,12 +393,14 @@ namespace GbEmuWindows
         return label;
     }
 
-    void MemoryInspector::addButtonTooltip(uint16_t addr)
+    void MemoryInspector::addButtonTooltips(uint16_t addr)
     {
         if (ImGui::BeginItemTooltip())
         {
             ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-            ImGui::TextUnformatted(curButtonTooltip.c_str());
+            for (auto i = curButtonTooltips.begin(); i != curButtonTooltips.end(); i++) {
+                ImGui::TextUnformatted((*i).c_str());
+            }
             ImGui::PopTextWrapPos();
             ImGui::EndTooltip();
         }
@@ -405,45 +411,30 @@ namespace GbEmuWindows
     // only isSelected has been set so far
     void MemoryInspector::setButtonStyle(uint16_t addr, bool& isColoured, bool& isSelected, bool& isTextColoured, bool& hasTooltip)
     {
+        curButtonTooltips.clear();
         if (isSelected)
         {
             // user selected
-            isColoured = true;
-            ImGui::PushStyleColor(ImGuiCol_Button, imgui_col_255_f(228, 90, 16, 255));
-            isTextColoured = true;
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 0, 0, 1));
-            hasTooltip = true;
-            curButtonTooltip = "Currently Selected Byte";
+            setButtonStyle_SingleType(imgui_col_255_f(228, 90, 16, 255), ImVec4(0, 0, 0, 1), 
+                "Currently Selected Byte", isColoured, isTextColoured, hasTooltip);
         }
-        else if (addr == cpu.pc)
+        if (addr == cpu.pc)
         {
             // program counter
-            isColoured = true;
-            ImGui::PushStyleColor(ImGuiCol_Button, imgui_col_255_f(216, 160, 223, 255));
-            isTextColoured = true;
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 0, 0, 1));
-            hasTooltip = true;
-            curButtonTooltip = "Program Counter Location";
+            setButtonStyle_SingleType(imgui_col_255_f(216, 160, 223, 255), ImVec4(0, 0, 0, 1),
+                "Program Counter Location", isColoured, isTextColoured, hasTooltip);
         }
-        else if (addr == cpu.sp)
+        if (addr == cpu.sp)
         {
             // stack pointer
-            isColoured = true;
-            ImGui::PushStyleColor(ImGuiCol_Button, imgui_col_255_f(99, 20, 245, 255));
-            isTextColoured = true;
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
-            hasTooltip = true;
-            curButtonTooltip = "Stack Pointer Location";
+            setButtonStyle_SingleType(imgui_col_255_f(99, 20, 245, 255), ImVec4(1, 1, 1, 1),
+                "Stack Pointer Location", isColoured, isTextColoured, hasTooltip);
         }
-        else if (addr > cpu.sp)
+        if (addr > cpu.sp)
         {
             // in stack (not sp)
-            isColoured = true;
-            ImGui::PushStyleColor(ImGuiCol_Button, imgui_col_255_f(164, 116, 252, 255));
-            isTextColoured = true;
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
-            hasTooltip = true;
-            curButtonTooltip = "Part of stack";
+            setButtonStyle_SingleType(imgui_col_255_f(164, 116, 252, 255), ImVec4(1, 1, 1, 1),
+                "Part of stack", isColoured, isTextColoured, hasTooltip);
         }
     }
 
@@ -451,6 +442,22 @@ namespace GbEmuWindows
     {
         if (isColoured) ImGui::PopStyleColor(); 
         if (isTextColoured) ImGui::PopStyleColor();
+    }
+
+    void MemoryInspector::setButtonStyle_SingleType(ImVec4 buttonCol, ImVec4 textcol, std::string tooltip, bool& isCol, bool& isTextCol, bool& hasTooltip)
+    {
+        if (!isCol)
+        {
+            isCol = true;
+            ImGui::PushStyleColor(ImGuiCol_Button, buttonCol);
+            isTextCol = true;
+            ImGui::PushStyleColor(ImGuiCol_Text, textcol);
+        }
+        if (tooltip != "")
+        {
+            hasTooltip = true;
+            curButtonTooltips.push_back(tooltip);
+        }
     }
 
    
