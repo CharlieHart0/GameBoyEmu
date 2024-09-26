@@ -146,6 +146,7 @@
     <ClInclude Include="GbEmuWindows\CPUInspector.h" />
     <ClInclude Include="GbEmuWindows\GbEmuWindow.h" />
     <ClInclude Include="GbEmuWindows\MemoryInsp_Bookmarks.h" />
+    <ClInclude Include="Helper\toStrings.h" />
     <ClInclude Include="ImGuiHelpers.h" />
     <ClInclude Include="GbEmuWindows\MemoryInspector.h" />
     <ClInclude Include="GbEmuWindows\RomInfoLoader.h" />
@@ -181,6 +182,7 @@
     <ClCompile Include="GbEmuWindows\MemoryInspector.cpp" />
     <ClCompile Include="GbEmuWindows\MemoryInsp_Bookmarks.cpp" />
     <ClCompile Include="GbEmuWindows\RomInfoLoader.cpp" />
+    <ClCompile Include="Helper\toStrings.cpp" />
     <ClCompile Include="Instructions.cpp" />
     <ClCompile Include="Main.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)Vendor\ImGui\backends\;$(ProjectDir)Vendor\ImGui\;A:\Program Files\SDL2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

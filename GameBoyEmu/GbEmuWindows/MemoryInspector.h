@@ -8,6 +8,7 @@
 #include "../ImGuiHelpers.h"
 #include "GbEmuWindow.h"
 #include "MemoryInsp_Bookmarks.h"
+#include "../Helper/toStrings.h"
 #include <filesystem>
 #include <iostream>
 
@@ -25,9 +26,7 @@ namespace appwindows
 		void ShowWindow();
 		void UpdateInspectorValues();
 
-		std::string hexToString(uint16_t value, bool use0x = true);
-		std::string hexToString(uint8_t value, bool use0x = true);
-		std::string boolToString(bool value);
+		
 
 		bool update_values = true;
 

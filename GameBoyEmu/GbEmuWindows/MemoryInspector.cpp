@@ -2,12 +2,14 @@
 #include <sstream>
 #include <iomanip>
 
+using namespace toStrings;
+
 namespace appwindows
 {
 
     MemoryInspector::MemoryInspector()
     {
-        
+        memoryinspector::bookmark::LoadBookmarks();
     }
 
     void MemoryInspector::ShowWindow()
@@ -53,7 +55,7 @@ namespace appwindows
         
         
 
-        bool b = false;
+        
         // Menu
         if (ImGui::BeginMenuBar())
         {
@@ -64,11 +66,12 @@ namespace appwindows
             }
             if (ImGui::BeginMenu("Jump to"))
             {
+                if (ImGui::MenuItem("Program Counter")) jumpToAddress(cpu.pc);
+                if (ImGui::MenuItem("Stack Pointer")) jumpToAddress(cpu.sp);
                 if (ImGui::BeginMenu("Bookmarked Addresses"))
                 {
-                    ImGui::MenuItem("Main menu bar", NULL, &b);
-                    if (ImGui::Button("add bookmark")) memoryinspector::bookmark::CreateBookmark({"Dir1","DIR2","bookmarkfile"}, 0xF420);
-                    if (ImGui::Button("testestestest")) memoryinspector::bookmark::LoadBookmarks();
+                    
+                    memoryinspector::bookmark::bookmarkMenu();
 
                     ImGui::EndMenu();
                 }
@@ -84,7 +87,12 @@ namespace appwindows
             ImGui::EndMenuBar();
         }
 
-
+        // jump if bookmarks told us to
+        if (memoryinspector::bookmark::shouldMakeJump)
+        {
+            jumpToAddress(memoryinspector::bookmark::jumpToBookmarkAddr);
+            memoryinspector::bookmark::shouldMakeJump = false;
+        }
 
 
         tableoffset = std::min(tableoffset, maxDisplayOffset);
@@ -316,27 +324,7 @@ namespace appwindows
 
     }
 
-    std::string MemoryInspector::hexToString(uint16_t value, bool use0x)
-    {
-        std::stringstream ss;
-        if (use0x) ss << "0x";
-        ss << std::setw(4) << std::setfill('0') << std::hex << (int) value;
-        return ss.str();
-    }
-
-    std::string MemoryInspector::hexToString(uint8_t value, bool use0x)
-    {
-        std::stringstream ss;
-        if (use0x) ss << "0x";
-        ss << std::setw(2) << std::setfill('0') << std::hex << (int) value;
-        return ss.str();
-    }
-
-    std::string MemoryInspector::boolToString(bool value)
-    {
-        return value ? "TRUE" : "FALSE";
-    }
-
+    
     void MemoryInspector::jumpToAddress(uint16_t address)
     {
         selectedAddress = address;

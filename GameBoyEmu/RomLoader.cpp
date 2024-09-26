@@ -40,6 +40,7 @@ void RomLoader::loadRomFromFile(const char* filePath)
     inputROM.seekg(0, std::ios::beg);
     rom.resize(fileSize);
     inputROM.read((char*)rom.data(), fileSize);
+    inputROM.close();
     if (!ValidateRom())
     {
         //rom validation success

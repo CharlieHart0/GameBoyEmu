@@ -2,6 +2,8 @@
 #include <sstream>
 #include <iomanip>
 
+using namespace toStrings;
+
 namespace appwindows
 {
 
@@ -153,27 +155,7 @@ namespace appwindows
 
     }
 
-    std::string CPUInspector::hexToString(uint16_t value, bool use0x)
-    {
-        std::stringstream ss;
-        if (use0x) ss << "0x";
-        ss << std::setw(4) << std::setfill('0') << std::hex << (int)value;
-        return ss.str();
-    }
-
-    std::string CPUInspector::hexToString(uint8_t value, bool use0x)
-    {
-        std::stringstream ss;
-        if (use0x) ss << "0x";
-        ss << std::setw(2) << std::setfill('0') << std::hex << (int) value;
-        return ss.str();
-    }
-
-    std::string CPUInspector::boolToString(bool value)
-    {
-        if (value) return "TRUE";
-        return "FALSE";
-    }
+    
 
     std::string CPUInspector::lastInstructionDetailsText()
     {
