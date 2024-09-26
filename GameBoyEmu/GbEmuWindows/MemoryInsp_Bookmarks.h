@@ -55,7 +55,7 @@ namespace appwindows
 			 bool nodeExists(std::vector<std::string>dirPath);
 			 void LoadBookmarks();
 			 void ClearBookmarks();
-			 bool CreateBookmark(std::vector<std::string> path,uint16_t addr);
+			 void CreateBookmark(std::vector<std::string> path,uint16_t addr);
 		}
 	}
 }

@@ -45,37 +45,26 @@ namespace appwindows
         ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 650, main_viewport->WorkPos.y + 20), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiCond_FirstUseEver);
 
-
         if (!ImGui::Begin("Memory Inspector!", &p_open, window_flags))
         {
             ImGui::End();
             return;
         }
-
         
         // Menu Bar
         if (ImGui::BeginMenuBar())
         {
-            if (ImGui::BeginMenu("Menu"))
-            {
-                
-                ImGui::EndMenu();
-            }
             if (ImGui::BeginMenu("Jump to"))
             {
                 if (ImGui::MenuItem("Program Counter")) jumpToAddress(cpu.pc);
                 if (ImGui::MenuItem("Stack Pointer")) jumpToAddress(cpu.sp);
                 if (ImGui::BeginMenu("Bookmarked Addresses"))
                 {
-                    
                     memoryinspector::bookmark::bookmarkMenu();
-
                     ImGui::EndMenu();
                 }
-                
                 ImGui::EndMenu();
             }
-            
             ImGui::EndMenuBar();
         }
 
@@ -86,14 +75,11 @@ namespace appwindows
             memoryinspector::bookmark::shouldMakeJump = false;
         }
 
-
         tableoffset = std::min(tableoffset, maxDisplayOffset);
-
 
         ImGui::Columns(2, NULL, false);
         ImGui::SetColumnWidth(0, 480);
 
-        
         uint16_t lastViewableAddress = tableoffset + (0x10 * GB_MEMORY_INSPECTOR_MEMAREA_ROWS) -1;
         
         // memory area table thing
@@ -104,28 +90,11 @@ namespace appwindows
             // add table headers
             {
                 ImGui::TableSetupColumn("Offset", ImGuiTableColumnFlags_WidthFixed);
-
-                ImGui::TableSetupColumn("00", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("01", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("02", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("03", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("04", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("05", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("06", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("07", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("08", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("09", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("0A", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("0B", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("0C", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("0D", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("0E", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("0F", ImGuiTableColumnFlags_WidthFixed);
+                for (uint8_t column = 0x00; column <= 0x0F; column++) ImGui::TableSetupColumn(hexToString(column, false).c_str(), ImGuiTableColumnFlags_WidthFixed);
                 ImGui::TableHeadersRow();
             }
 
-            
-
+            // add buttons for memory addresses
             for (int row = 0; row < GB_MEMORY_INSPECTOR_MEMAREA_ROWS; row++)
             {
                 ImGui::TableNextRow();
@@ -158,9 +127,7 @@ namespace appwindows
                     ImGui::PopStyleVar();
                     ImGui::PopID();
                 }
-                
             }
-
             ImGui::EndTable();
         }
 
@@ -187,9 +154,8 @@ namespace appwindows
             }
             ImGui::SameLine();
 
-            //if (ImGui::Button(" - 0x1")) tableoffset -= 0x1;
+            
             ImGui::Text("    "); ImGui::SameLine(); // spacer
-            //if (ImGui::Button(" + 0x1")) tableoffset -= 0x1;
 
             // + 0x10 button is unavailable at the end of the memory, as it would break stuff
             if (tableoffset == 0xff00) { ImGui::Button("-------"); ImGui::SameLine(); }
@@ -232,8 +198,7 @@ namespace appwindows
         }
 
 
-        //if (update_values) { UpdateInspectorValues(); }
-
+        // right column
         ImGui::NextColumn();
         if (ImGui::Button("|<")) selectedAddress = 0x0000; ImGui::SameLine();
         if (ImGui::Button("<")) selectedAddress--; ImGui::SameLine();
@@ -256,7 +221,6 @@ namespace appwindows
         ImGui::Text((std::string("Dec: ") + std::to_string(selected_value)).c_str());
         if (ImGui::BeginTable("memory_inspector_value_binary", 9))
         {
-
             // add table headers
             {
                 ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthFixed);
@@ -295,8 +259,6 @@ namespace appwindows
             }
         }
      
-
-
 
 
         ImGui::End();
@@ -359,58 +321,20 @@ namespace appwindows
     std::string MemoryInspector::getAddressLabel(uint16_t addr)
     {
         std::string label = "";
-        if (rangeIncInc(0x0000, addr, 0x3FFF))
-        {
-            label += "ROM bank 00";
-        }
-        else if (rangeIncInc(0x4000, addr, 0x7FFF))
-        {
-            label += "ROM bank X";
-        }
-        else if (rangeIncInc(0x8000, addr, 0x9FFF))
-        {
-            label += "Video RAM";
-        }
-        else if (rangeIncInc(0xA000, addr, 0xBFFF))
-        {
-            label += "External RAM (if on cart)";
-        }
-        else if (rangeIncInc(0xC000, addr, 0xCFFF))
-        {
-            label += "Work RAM (WRAM)";
-        }
-        else if (rangeIncInc(0xd000, addr, 0xdFFF))
-        {
-            label += "Work RAM 2 - Electric Boogaloo";
-        }
-        else if (rangeIncInc(0xE000, addr, 0xFDFF))
-        {
-            label += "Echo RAM (use prohibited)";
-        }
-        else if (rangeIncInc(0xFE00, addr, 0xFE9F))
-        {
-            label += "Object Attribute Memory";
-        }
-        else if (rangeIncInc(0xFEA0, addr, 0xFEFF))
-        {
-            label += "Unusable (prohibited)";
-        }
-        else if (rangeIncInc(0xFF00, addr, 0xFF7F))
-        {
-            label += "IO Registers";
-        }
-        else if (rangeIncInc(0xFF80, addr, 0xFFFE))
-        {
-            label += "High RAM (HRAM)";
-        }
-        else if ( 0xFFFF == addr )
-        {
-            label += "Interrupt Enable Register (IE)";
-        }
-        else
-        {
-            return "ERROR";
-        }
+        if (rangeIncInc(0x0000, addr, 0x3FFF)) label += "ROM bank 00";
+        else if (rangeIncInc(0x4000, addr, 0x7FFF)) label += "ROM bank X";
+        else if (rangeIncInc(0x8000, addr, 0x9FFF)) label += "Video RAM";
+        else if (rangeIncInc(0xA000, addr, 0xBFFF)) label += "External RAM (if on cart)";
+        else if (rangeIncInc(0xC000, addr, 0xCFFF)) label += "Work RAM (WRAM)";
+        else if (rangeIncInc(0xd000, addr, 0xdFFF)) label += "Work RAM 2 - Electric Boogaloo";
+        else if (rangeIncInc(0xE000, addr, 0xFDFF)) label += "Echo RAM (use prohibited)";
+        else if (rangeIncInc(0xFE00, addr, 0xFE9F)) label += "Object Attribute Memory";
+        else if (rangeIncInc(0xFEA0, addr, 0xFEFF)) label += "Unusable (prohibited)";
+        else if (rangeIncInc(0xFF00, addr, 0xFF7F)) label += "IO Registers";
+        else if (rangeIncInc(0xFF80, addr, 0xFFFE)) label += "High RAM (HRAM)";
+        else if ( 0xFFFF == addr ) label += "Interrupt Enable Register (IE)";
+        else return "ERROR";
+        
         return label;
     }
 
@@ -427,39 +351,19 @@ namespace appwindows
         }
     }
 
-    
-
     // only isSelected has been set so far
     void MemoryInspector::setButtonStyle(uint16_t addr, bool& isColoured, bool& isSelected, bool& isTextColoured, bool& hasTooltip)
     {
         curButtonTooltips.clear();
-        if (isSelected)
-        {
-            // user selected
-            setButtonStyle_SingleType(imgui_col_255_f(228, 90, 16, 255), ImVec4(0, 0, 0, 1), 
-                "Currently Selected Byte", isColoured, isTextColoured, hasTooltip);
-        }
-        if (addr == cpu.pc)
-        {
-            // program counter
-            setButtonStyle_SingleType(imgui_col_255_f(216, 160, 223, 255), ImVec4(0, 0, 0, 1),
-                "Program Counter Location", isColoured, isTextColoured, hasTooltip);
-        }
-        if (addr == cpu.sp)
-        {
-            // stack pointer
-            setButtonStyle_SingleType(imgui_col_255_f(99, 20, 245, 255), ImVec4(1, 1, 1, 1),
-                "Stack Pointer Location", isColoured, isTextColoured, hasTooltip);
-        }
-        if (addr > cpu.sp)
-        {
-            // in stack (not sp)
-            setButtonStyle_SingleType(imgui_col_255_f(164, 116, 252, 255), ImVec4(1, 1, 1, 1),
-                "Part of stack", isColoured, isTextColoured, hasTooltip);
-        }
-
-
-
+        if (isSelected) setButtonStyle_SingleType(imgui_col_255_f(228, 90, 16, 255), ImVec4(0, 0, 0, 1),
+            "Currently Selected Byte", isColoured, isTextColoured, hasTooltip);
+        if (addr == cpu.pc) setButtonStyle_SingleType(imgui_col_255_f(216, 160, 223, 255), ImVec4(0, 0, 0, 1),
+            "Program Counter Location", isColoured, isTextColoured, hasTooltip);
+        if (addr == cpu.sp) setButtonStyle_SingleType(imgui_col_255_f(99, 20, 245, 255), ImVec4(1, 1, 1, 1),
+            "Stack Pointer Location", isColoured, isTextColoured, hasTooltip);
+        if (addr > cpu.sp) setButtonStyle_SingleType(imgui_col_255_f(164, 116, 252, 255), ImVec4(1, 1, 1, 1),
+            "Part of stack", isColoured, isTextColoured, hasTooltip);
+        
         // default tooltip (memory area descriptor)
         hasTooltip = true;
         curButtonTooltips.push_back(getAddressLabel(addr));

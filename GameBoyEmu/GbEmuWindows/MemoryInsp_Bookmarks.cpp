@@ -1,5 +1,6 @@
 #include "MemoryInsp_Bookmarks.h"
 
+namespace stdfs = std::filesystem;
 
 namespace appwindows
 {
@@ -14,16 +15,18 @@ namespace appwindows
 				// clear existing bookmark directory tree
 				ClearBookmarks();
 
-				// then load em
-				for (const std::filesystem::directory_entry& dir_entry :
-					std::filesystem::recursive_directory_iterator(cwd/mainDirectory))
+				// then load them
+				for (const stdfs::directory_entry& dir_entry :
+					stdfs::recursive_directory_iterator(cwd/mainDirectory))
 				{
-					std::filesystem::path relPath = std::filesystem::relative(dir_entry.path(), cwd / mainDirectory);
-					std::vector<std::string> pathStepsVec;
-					for (auto i = relPath.begin(); i != relPath.end(); i++) pathStepsVec.push_back((*i).string());
+					// path from bookmarks directory to the current file
+					stdfs::path relPath = stdfs::relative(dir_entry.path(), cwd / mainDirectory);
+					std::vector<std::string> pathParts;
+					for (auto i = relPath.begin(); i != relPath.end(); i++) pathParts.push_back((*i).string());
+
 					if (dir_entry.is_directory())
 					{
-						if (!nodeExists(pathStepsVec)) CreateNode(pathStepsVec);
+						if (!nodeExists(pathParts)) CreateNode(pathParts);
 						continue;
 					}
 					if (dir_entry.is_regular_file())
@@ -32,36 +35,41 @@ namespace appwindows
 						if (dir_entry.path().extension().string() != fileSuffix && 
 							dir_entry.path().extension().string() != altFileSuffix) continue;
 						// remove file name from relative bookmark path to get the directories leading to it
-						pathStepsVec.pop_back();
+						pathParts.pop_back();
 
 						// make sure node bookmark should be at exists
-						if (!nodeExists(pathStepsVec)) CreateNode(pathStepsVec);
+						if (!nodeExists(pathParts)) CreateNode(pathParts);
 
 						// find node that bookmark should be at
 						BookmarkTreeNode* curNode = &rootNode;
-						for (auto i = pathStepsVec.begin(); i != pathStepsVec.end(); i++) curNode = &(curNode->nodes[*i]);
+						for (auto i = pathParts.begin(); i != pathParts.end(); i++) curNode = &(curNode->nodes[*i]);
 
 						uint16_t address = 0x0000;
 						// read file for bookmark address
 						std::ifstream bookmarkFile(dir_entry.path(), std::ios::binary);
 						bookmarkFile.seekg(0, std::ios::end);
-						if (bookmarkFile.tellg() < 2) { continue; }
+						if (bookmarkFile.tellg() < 2) { continue; } // file needs to be at least 2 bytes long
 						bookmarkFile.seekg(0, std::ios::beg);
 						std::array<char, 2> bytes;
-						bookmarkFile.read((char*) &bytes, 2);
+						bookmarkFile.read((char*) &bytes, 2); // address is uint16_t, so ignore anything past first 2 bytes
 						bookmarkFile.close();
 
+						// put the read bytes into the address
 						address |= ((uint16_t) bytes[0]) << 8;
 						address |= bytes[1];
 
-						curNode->bookmarks.push_back(Bookmark(address, dir_entry.path().filename().string(), pathStepsVec));
+						// add bookmark with address and name to the correct location within the bookmark tree
+						curNode->bookmarks.push_back(Bookmark(address, dir_entry.path().filename().string(), pathParts));
 						continue;
 					}
 				}
 			}
-			std::string fileOrDirName(std::filesystem::path path)
+
+			//returns the final part of a filepath, for example C:/Users/JSmith/Documents/document.txt -> document.txt
+			// and C:/Users/JSmith/Documents -> Documents
+			std::string fileOrDirName(stdfs::path path)
 			{
-				return std::filesystem::relative(path, path.parent_path()).string();
+				return stdfs::relative(path, path.parent_path()).string();
 			}
 
 			void bookmarkMenu(bool root, BookmarkTreeNode* node)
@@ -98,9 +106,10 @@ namespace appwindows
 				rootNode.nodes.clear();
 				rootNode.bookmarks.clear();
 			}
-			bool CreateBookmark(std::vector<std::string> path, uint16_t addr)
+
+			void CreateBookmark(std::vector<std::string> path, uint16_t addr)
 			{
-				std::filesystem::path currentPath = cwd / mainDirectory;
+				stdfs::path currentPath = cwd / mainDirectory;
 				for (auto i = path.begin(); i != path.end(); i++)
 				{
 					if (std::distance(i, path.end()) == 1) // if at file name
@@ -115,15 +124,11 @@ namespace appwindows
 					}
 					else // at a directory
 					{
-						if (!std::filesystem::is_directory(currentPath / *i))
-						{
-							std::filesystem::create_directory(currentPath / *i);
-						}
+						// create directory if does not exist
+						if (!stdfs::is_directory(currentPath / *i)) stdfs::create_directory(currentPath / *i);
 						currentPath = currentPath / *i;
 					}
 				}
-
-				return false;
 			}
 			
 			// dirpath example - display, lcd control registers
@@ -151,17 +156,11 @@ namespace appwindows
 				if (dirPath.size() > 1)
 				{
 					parentPath.reserve(dirPath.size() - 1);
-					for (auto i = dirPath.begin(); std::distance(i, dirPath.end()) > 1; i++)
-					{
-						parentPath.push_back(*i);
-					}
+					for (auto i = dirPath.begin(); std::distance(i, dirPath.end()) > 1; i++) parentPath.push_back(*i);
 					if (!nodeExists(parentPath)) CreateNode(parentPath);
 				}
 				BookmarkTreeNode* curNode = &rootNode;
-				for (auto i = dirPath.begin(); std::distance(i, dirPath.end()) > 1; i++)
-				{
-					curNode = &(curNode->nodes[*i]);
-				}
+				for (auto i = dirPath.begin(); std::distance(i, dirPath.end()) > 1; i++) curNode = &(curNode->nodes[*i]);
 				curNode->nodes[dirPath[dirPath.size() - 1]] = BookmarkTreeNode(dirPath[dirPath.size() - 1]);
 			};
 		}
