@@ -53,10 +53,7 @@ namespace appwindows
         }
 
         
-        
-
-        
-        // Menu
+        // Menu Bar
         if (ImGui::BeginMenuBar())
         {
             if (ImGui::BeginMenu("Menu"))
@@ -78,12 +75,7 @@ namespace appwindows
                 
                 ImGui::EndMenu();
             }
-            if (ImGui::BeginMenu("Help"))
-            {
-                
-                
-                ImGui::EndMenu();
-            }
+            
             ImGui::EndMenuBar();
         }
 
@@ -101,14 +93,7 @@ namespace appwindows
         ImGui::Columns(2, NULL, false);
         ImGui::SetColumnWidth(0, 480);
 
-        /*ImGui::Text("test lol");
-        if (ImGui::BeginItemTooltip())
-        {
-            ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-            ImGui::TextUnformatted("test tooltip");
-            ImGui::PopTextWrapPos();
-            ImGui::EndTooltip();
-        }*/
+        
         uint16_t lastViewableAddress = tableoffset + (0x10 * GB_MEMORY_INSPECTOR_MEMAREA_ROWS) -1;
         
         // memory area table thing
