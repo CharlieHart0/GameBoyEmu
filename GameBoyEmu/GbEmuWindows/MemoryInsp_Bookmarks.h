@@ -25,8 +25,9 @@ namespace appwindows
 				 std::vector<std::string> path; // eg Display, LCD Status Registers
 			 };
 			 
-			 struct bookmarkTreeNode
+			 class bookmarkTreeNode
 			 {
+			 public:
 				 std::string nodeName;
 				 std::map<std::string,bookmarkTreeNode> nodes;
 				 std::vector<bookmark> bookmarks;
@@ -34,10 +35,17 @@ namespace appwindows
 				 {
 					 nodeName = name;
 				 }
+				 bookmarkTreeNode()
+				 {
+					 
+				 }
 			 };
 
-			 bookmarkTreeNode rootNode("Bookmarks");
+			 extern bookmarkTreeNode rootNode;
 
+			 std::string fileOrDirName(std::filesystem::path path);
+			 void CreateNode(std::vector<std::string>dirPath);
+			 bool nodeExists(std::vector<std::string>dirPath);
 			 void LoadBookmarks();
 			 void ClearBookmarks();
 			 bool CreateBookmark(std::vector<std::string> path,uint16_t addr);

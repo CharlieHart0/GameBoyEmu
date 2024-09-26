@@ -51,7 +51,7 @@ namespace appwindows
         }
 
         
-        std::cout << std::filesystem::current_path();
+        
 
         bool b = false;
         // Menu
@@ -59,19 +59,25 @@ namespace appwindows
         {
             if (ImGui::BeginMenu("Menu"))
             {
-                ImGui::MenuItem("Main menu bar", NULL, &b);
-                if (ImGui::Button("add bookmark")) memoryinspector::bookmark::CreateBookmark({"Dir1","DIR2","bookmarkfile"}, 0xF69F);
+                
                 ImGui::EndMenu();
             }
-            if (ImGui::BeginMenu("Examples"))
+            if (ImGui::BeginMenu("Jump to"))
             {
-                ImGui::MenuItem("Main menu bar", NULL, &b);
+                if (ImGui::BeginMenu("Bookmarked Addresses"))
+                {
+                    ImGui::MenuItem("Main menu bar", NULL, &b);
+                    if (ImGui::Button("add bookmark")) memoryinspector::bookmark::CreateBookmark({"Dir1","DIR2","bookmarkfile"}, 0xF420);
+                    if (ImGui::Button("testestestest")) memoryinspector::bookmark::LoadBookmarks();
+
+                    ImGui::EndMenu();
+                }
                 
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Help"))
             {
-                ImGui::MenuItem("Metrics", NULL, &b);
+                
                 
                 ImGui::EndMenu();
             }
