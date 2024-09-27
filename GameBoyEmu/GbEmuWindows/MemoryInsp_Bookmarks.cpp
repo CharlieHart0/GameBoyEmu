@@ -12,6 +12,7 @@ namespace appwindows
 		{
 			BookmarkTreeNode rootNode("Bookmarks");
 
+			// Loads memory address bookmarks from bookmarks directory
 			void LoadBookmarks()
 			{
 				// clear existing bookmark directory tree
@@ -74,6 +75,7 @@ namespace appwindows
 				return stdfs::relative(path, path.parent_path()).string();
 			}
 
+			//Imgui stuff for bookmark menu bar menu
 			void bookmarkMenu(bool root, BookmarkTreeNode* node)
 			{
 				if (!root && node == nullptr) return;
@@ -109,6 +111,7 @@ namespace appwindows
 				rootNode.bookmarks.clear();
 			}
 
+			// creates a new bookmarked address file, usable by app user
 			bool CreateBookmark(std::vector<std::string> path, uint16_t addr)
 			{
 				stdfs::path currentPath = cwd / mainDirectory;
@@ -146,6 +149,7 @@ namespace appwindows
 				return true;
 			}
 
+			// parses user input into file path, adds new bookmark file
 			void AddBookmarkButton(bool& open, uint16_t* p_addr)
 			{
 				vector<string> path = split(addBookmarkPath, "/");
@@ -170,6 +174,7 @@ namespace appwindows
 				return false;
 			}
 
+			// creates/adds new node to the loaded bookmark tree. Should only really be used when loading bookmark from file
 			void CreateNode(std::vector<std::string>dirPath)
 			{
 				if (nodeExists(dirPath)) return;
@@ -185,45 +190,16 @@ namespace appwindows
 				curNode->nodes[dirPath[dirPath.size() - 1]] = BookmarkTreeNode(dirPath[dirPath.size() - 1]);
 			};
 			
-			
 			void AddBookmarkWindow::ShowWindow()
 			{
 				if (memInspectorSelectedAddr == nullptr) { return; }
 
-				
-				// Demonstrate the various window flags. Typically you would just use the default!
-				static bool no_titlebar = false;
-				static bool no_scrollbar = false;
-				static bool no_menu = true;
-				static bool no_move = false;
-				static bool no_resize = false;
-				static bool no_collapse = false;
-				static bool no_close = false;
-				static bool no_nav = false;
-				static bool no_background = false;
-				static bool no_bring_to_front = false;
-				static bool unsaved_document = false;
-
-				ImGuiWindowFlags window_flags = 0;
-				if (no_titlebar)        window_flags |= ImGuiWindowFlags_NoTitleBar;
-				if (no_scrollbar)       window_flags |= ImGuiWindowFlags_NoScrollbar;
-				if (!no_menu)           window_flags |= ImGuiWindowFlags_MenuBar;
-				if (no_move)            window_flags |= ImGuiWindowFlags_NoMove;
-				if (no_resize)          window_flags |= ImGuiWindowFlags_NoResize;
-				if (no_collapse)        window_flags |= ImGuiWindowFlags_NoCollapse;
-				if (no_nav)             window_flags |= ImGuiWindowFlags_NoNav;
-				if (no_background)      window_flags |= ImGuiWindowFlags_NoBackground;
-				if (no_bring_to_front)  window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
-				if (unsaved_document)   window_flags |= ImGuiWindowFlags_UnsavedDocument;
-				if (no_close)           p_open = NULL; // Don't pass our bool* to Begin
-
-				if (!ImGui::Begin("Add Bookmarked Address", &p_open, window_flags))
+				if (!ImGui::Begin("Add Bookmarked Address", &p_open, 0))
 				{
 					ImGui::End();
 					return;
 				}
 				
-
 				ImGui::Text("Add Bookmark at location: "); ImGui::SameLine();
 				ImGui::Text(toStrings::hexToString(*memInspectorSelectedAddr).c_str());
 
@@ -233,16 +209,14 @@ namespace appwindows
 
 				if (ImGui::Button("Add Bookmark")) AddBookmarkButton(p_open,memInspectorSelectedAddr);
 
-				
 				ImGui::End();
 			}
 
+			// class needs ptr to memory inspector's selected address.
 			AddBookmarkWindow::AddBookmarkWindow(uint16_t* addr)
 			{
-				if (addBookmarkWindow != nullptr)
-				{
-					throw std::exception("Two of this class created!");
-				}
+				if (addBookmarkWindow != nullptr) throw std::exception("Duplicate instances of class not allowed!");
+				
 				addBookmarkWindow = this;
 				memInspectorSelectedAddr = addr;
 			}

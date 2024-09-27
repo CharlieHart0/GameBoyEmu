@@ -20,10 +20,11 @@ namespace appwindows
 	{
 		namespace bookmark
 		{
-			const std::filesystem::path cwd = std::filesystem::current_path();
+			 const std::filesystem::path cwd = std::filesystem::current_path();
 			 const std::filesystem::path mainDirectory = (std::filesystem::path) "UserConfigurable"/"MemoryInspector" / "Bookmarks";
 			 const std::string fileSuffix = ".GBADDR";
 			 const std::string altFileSuffix = ".gbaddr";
+
 
 			 struct Bookmark
 			 {
@@ -58,22 +59,26 @@ namespace appwindows
 				 AddBookmarkWindow();
 			 };
 
-			 extern BookmarkTreeNode rootNode;
 
-			 void bookmarkMenu(bool root = true, BookmarkTreeNode* node = nullptr);
+			 extern BookmarkTreeNode rootNode;
 
 			 uint16_t jumpToBookmarkAddr = 0x0000;
 			 bool shouldMakeJump = false;
 			 std::string addBookmarkPath{"User Defined/bookmarkname"};
+			 //memory inspector owns the AddBookmarkWindow, so need ptr to it
 			 AddBookmarkWindow* addBookmarkWindow = nullptr;
 
+
 			 std::string fileOrDirName(std::filesystem::path path);
-			 void CreateNode(std::vector<std::string>dirPath);
+			 
 			 bool nodeExists(std::vector<std::string>dirPath);
+			 bool CreateBookmark(std::vector<std::string> path,uint16_t addr);
+
+			 void CreateNode(std::vector<std::string>dirPath);
 			 void LoadBookmarks();
 			 void ClearBookmarks();
-			 bool CreateBookmark(std::vector<std::string> path,uint16_t addr);
 			 void AddBookmarkButton(bool& open, uint16_t* p_addr);
+			 void bookmarkMenu(bool root = true, BookmarkTreeNode* node = nullptr);
 
 			 
 		}
