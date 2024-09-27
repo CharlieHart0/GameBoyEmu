@@ -2,7 +2,7 @@
 #include <sstream>
 #include <iomanip>
 
-using namespace toStrings;
+using namespace chhelper::toStrings;
 
 namespace appwindows
 {
@@ -63,12 +63,8 @@ namespace appwindows
                 if (ImGui::MenuItem("Stack Pointer")) jumpToAddress(cpu.sp);
                 if (ImGui::BeginMenu("Bookmarks"))
                 {
-                    if (ImGui::MenuItem("Add Bookmark"))
-                    {
-                        
-                        addBookmarkWindow.p_open = true;
-
-                    }
+                    if (ImGui::MenuItem("Add Bookmark")) addBookmarkWindow.p_open = true;
+                    
                     memoryinspector::bookmark::bookmarkMenu();
                     ImGui::EndMenu();
                 }
@@ -77,15 +73,17 @@ namespace appwindows
             ImGui::EndMenuBar();
         }
 
+        // update child windows
         addBookmarkWindow.Update();
 
-        // jump if bookmarks told us to
+        // jump if bookmarks menu is requesting it
         if (memoryinspector::bookmark::shouldMakeJump)
         {
             jumpToAddress(memoryinspector::bookmark::jumpToBookmarkAddr);
             memoryinspector::bookmark::shouldMakeJump = false;
         }
 
+        // start address of the table must be low enough that the end of the memory (0xFFFF) is not before the end of the table.
         tableoffset = std::min(tableoffset, maxDisplayOffset);
 
         ImGui::Columns(2, NULL, false);
@@ -93,7 +91,7 @@ namespace appwindows
 
         uint16_t lastViewableAddress = tableoffset + (0x10 * GB_MEMORY_INSPECTOR_MEMAREA_ROWS) -1;
         
-        // memory area table thing
+        // memory area table 
         if (ImGui::BeginTable("memory_inspector_memory_area", 17))
         {
             selectedAddrTags.clear();
@@ -101,6 +99,7 @@ namespace appwindows
             // add table headers
             {
                 ImGui::TableSetupColumn("Offset", ImGuiTableColumnFlags_WidthFixed);
+                // Headers 00 to 0F inclusive
                 for (uint8_t column = 0x00; column <= 0x0F; column++) ImGui::TableSetupColumn(hexToString(column, false).c_str(), ImGuiTableColumnFlags_WidthFixed);
                 ImGui::TableHeadersRow();
             }
@@ -156,7 +155,7 @@ namespace appwindows
                 selectedAddress -= 0x100;
             }
             ImGui::SameLine();
-            // - 0x10 button is unavailable at the start of the memory, as it would break stuff
+            // - 0x10 button is unavailable at the start of the memory, as the memory table doesn't wrap
             if (tableoffset == 0x0000) { ImGui::Button("-------"); ImGui::SameLine(); }
             else if (ImGui::Button(" - 0x10"))
             {
@@ -168,7 +167,7 @@ namespace appwindows
             
             ImGui::Text("    "); ImGui::SameLine(); // spacer
 
-            // + 0x10 button is unavailable at the end of the memory, as it would break stuff
+            // + 0x10 button is unavailable at the end of the memory, as the memory table doesn't wrap
             if (tableoffset == 0xff00) { ImGui::Button("-------"); ImGui::SameLine(); }
             else
             {
@@ -192,9 +191,10 @@ namespace appwindows
             }
         }
 
-        // search bar
+        // navigation section, under table 
         {
             ImGui::NewLine();
+            // jump to address
             ImGui::Text("Jump to:"); 
             ImGui::Text("0x"); ImGui::SameLine();
             ImGui::PushItemWidth(40);
@@ -203,20 +203,21 @@ namespace appwindows
             ImGui::PopItemWidth();
             if(ImGui::Button("Enter")) jumpToAddress(std::string(jumpToText));
             ImGui::PopStyleVar();
+            // jump to useful points
             if (ImGui::Button("Program Counter")) jumpToAddress(cpu.pc);
             if (ImGui::Button("Stack Pointer")) jumpToAddress(cpu.sp);
 
         }
 
 
-        // right column
+        // window right column
         ImGui::NextColumn();
         if (ImGui::Button("|<")) selectedAddress = 0x0000; ImGui::SameLine();
         if (ImGui::Button("<")) selectedAddress--; ImGui::SameLine();
         if (ImGui::Button(">")) selectedAddress++; ImGui::SameLine();
         if (ImGui::Button(">|")) selectedAddress = 0xFFFF;
 
-        // selected byte is not on screen
+        // if selected byte is not on screen / table
         if (selectedAddress < tableoffset || selectedAddress > lastViewableAddress)
         {
             tableoffset = selectedAddress & 0xFFF0;
@@ -230,6 +231,7 @@ namespace appwindows
         ImGui::Text("Value as:");
         ImGui::Text( ( std::string("Hex: ") + hexToString(selected_value) ).c_str());
         ImGui::Text((std::string("Dec: ") + std::to_string(selected_value)).c_str());
+
         if (ImGui::BeginTable("memory_inspector_value_binary", 9))
         {
             // add table headers
@@ -256,11 +258,12 @@ namespace appwindows
             }
             ImGui::EndTable();
         }
+
         ImGui::Text((  std::string("ASCII char: ") += (char)selected_value ).c_str());
         ImGui::Text((std::string("8-bit Instruction: ") + instructionByteToFullDetails(selected_value)).c_str());
         ImGui::Text((std::string("0xCB Prefixed Instruction: ") + instructionByteToFullDetails(selected_value,true)).c_str());
 
-        if (selectedAddrTags.size() > 1)
+        if (selectedAddrTags.size() > 1) // ignore first tag, as this will always be "selected address"
         {
             ImGui::NewLine();
             ImGui::Text("Address Is:");
@@ -275,7 +278,7 @@ namespace appwindows
         ImGui::End();
     }
 
-
+    // as of yet unused
     void MemoryInspector::UpdateInspectorValues()
     {
         
@@ -288,6 +291,7 @@ namespace appwindows
         selectedAddress = address;
     }
 
+    // does nothing if address string is invalid
     void MemoryInspector::jumpToAddress(std::string address)
     {
         for (auto i = address.begin(); i != address.end(); i++)
@@ -297,13 +301,6 @@ namespace appwindows
         jumpToAddress(std::stoi(address, 0, 16));
     }
 
-    
-
-    bool MemoryInspector::getBitFromByte(uint8_t byte, uint8_t pos)
-    {
-        // TODO should i throw an error here? not sure
-        return pos > 7 ? false : (byte >> pos) & 1;
-    }
 
     std::string MemoryInspector::instructionByteToFullDetails(uint8_t byte, bool prefixed)
     {

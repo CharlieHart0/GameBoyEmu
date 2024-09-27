@@ -2,7 +2,7 @@
 #include <sstream>
 #include <iomanip>
 
-using namespace toStrings;
+using namespace chhelper::toStrings;
 
 namespace appwindows
 {

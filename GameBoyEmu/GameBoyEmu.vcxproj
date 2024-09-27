@@ -146,6 +146,7 @@
     <ClInclude Include="GbEmuWindows\CPUInspector.h" />
     <ClInclude Include="GbEmuWindows\GbEmuWindow.h" />
     <ClInclude Include="GbEmuWindows\MemoryInsp_Bookmarks.h" />
+    <ClInclude Include="Helper\binary.h" />
     <ClInclude Include="Helper\stringfuncs.h" />
     <ClInclude Include="Helper\toStrings.h" />
     <ClInclude Include="ImGuiHelpers.h" />

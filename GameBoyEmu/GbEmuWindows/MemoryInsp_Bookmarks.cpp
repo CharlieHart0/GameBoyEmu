@@ -2,7 +2,8 @@
 #include "MemoryInspector.h"
 
 namespace stdfs = std::filesystem;
-using stringfuncs::split, std::vector, std::string;
+using namespace chhelper::toStrings;
+using chhelper::stringfuncs::split, std::vector, std::string;
 
 namespace appwindows
 {
@@ -97,7 +98,7 @@ namespace appwindows
 				// add options for each bookmarked address 
 				for (auto i = node->bookmarks.begin(); i != node->bookmarks.end(); i++)
 				{
-					if (ImGui::MenuItem((toStrings::hexToString(i->addr)+std::string(" - ") + i->label).c_str(), NULL))
+					if (ImGui::MenuItem((hexToString(i->addr)+std::string(" - ") + i->label).c_str(), NULL))
 					{
 						shouldMakeJump = true;
 						jumpToBookmarkAddr = i->addr;
@@ -201,7 +202,7 @@ namespace appwindows
 				}
 				
 				ImGui::Text("Add Bookmark at location: "); ImGui::SameLine();
-				ImGui::Text(toStrings::hexToString(*memInspectorSelectedAddr).c_str());
+				ImGui::Text(hexToString(*memInspectorSelectedAddr).c_str());
 
 				ImGui::PushItemWidth(ImGui::GetWindowWidth()-20);
 				ImGui::InputText(".gbaddr##meminsp_bookmark_add_input", &addBookmarkPath);

@@ -4,9 +4,12 @@
 #include <sstream>
 #include <iomanip>
 
-namespace toStrings
+namespace chhelper
 {
-	std::string hexToString(uint16_t value, bool use0x = true);
-	std::string hexToString(uint8_t value, bool use0x = true);
-	std::string boolToString(bool value);
+	namespace toStrings
+	{
+		std::string hexToString(uint16_t value, bool use0x = true);
+		std::string hexToString(uint8_t value, bool use0x = true);
+		std::string boolToString(bool value);
+	}
 }

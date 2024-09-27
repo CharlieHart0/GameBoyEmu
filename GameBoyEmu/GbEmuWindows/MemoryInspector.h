@@ -35,17 +35,19 @@ namespace appwindows
 		uint16_t getSelectedAddress() { return selectedAddress; }
 	protected:
 		uint16_t selectedAddress = 0x0000;
+		// address table starts at
 		uint16_t tableoffset = 0x0000;
 		char jumpToText[5] = "0000";
 		std::vector<std::string> curButtonTooltips;
+		// tags are the tooltips of the currently selected address, and are to be displayed in the inspector.
 		std::vector<std::string> selectedAddrTags;
 		memoryinspector::bookmark::AddBookmarkWindow addBookmarkWindow;
 		
 
-
+		// table start address that puts final memory byte (0xFFFF) at end of table
 		// overflow expected and used here, maybe that isnt the right thing to do
 		uint16_t maxDisplayOffset = 0 - (0x10 * GB_MEMORY_INSPECTOR_MEMAREA_ROWS);
-		bool getBitFromByte(uint8_t byte, uint8_t pos);
+		
 
 		std::string instructionByteToFullDetails(uint8_t byte, bool prefixed = false);
 
@@ -55,6 +57,7 @@ namespace appwindows
 
 		bool isHexChar(char c);
 
+		// label of the broad memory region of an address
 		std::string getAddressLabel(uint16_t addr);
 		bool rangeIncInc(uint16_t min, uint16_t v, uint16_t max) { return (min <= v) && (max >= v); }
 		
