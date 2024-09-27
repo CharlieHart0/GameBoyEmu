@@ -32,12 +32,16 @@ namespace appwindows
 
 		void jumpToAddress(uint16_t address);
 		void jumpToAddress(std::string address);
+		uint16_t getSelectedAddress() { return selectedAddress; }
 	protected:
 		uint16_t selectedAddress = 0x0000;
 		uint16_t tableoffset = 0x0000;
 		char jumpToText[5] = "0000";
 		std::vector<std::string> curButtonTooltips;
 		std::vector<std::string> selectedAddrTags;
+		memoryinspector::bookmark::AddBookmarkWindow addBookmarkWindow;
+		
+
 
 		// overflow expected and used here, maybe that isnt the right thing to do
 		uint16_t maxDisplayOffset = 0 - (0x10 * GB_MEMORY_INSPECTOR_MEMAREA_ROWS);

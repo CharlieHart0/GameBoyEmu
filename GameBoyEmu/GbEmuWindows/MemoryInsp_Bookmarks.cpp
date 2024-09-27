@@ -1,6 +1,8 @@
 #include "MemoryInsp_Bookmarks.h"
+#include "MemoryInspector.h"
 
 namespace stdfs = std::filesystem;
+using stringfuncs::split, std::vector, std::string;
 
 namespace appwindows
 {
@@ -75,7 +77,7 @@ namespace appwindows
 			void bookmarkMenu(bool root, BookmarkTreeNode* node)
 			{
 				if (!root && node == nullptr) return;
-				if (root) node = &rootNode;
+				if (root) node = &rootNode; 
 
 				// add menu things for each directory 
 				for (auto i = node->nodes.begin(); i != node->nodes.end(); i++)
@@ -107,15 +109,20 @@ namespace appwindows
 				rootNode.bookmarks.clear();
 			}
 
-			void CreateBookmark(std::vector<std::string> path, uint16_t addr)
+			bool CreateBookmark(std::vector<std::string> path, uint16_t addr)
 			{
 				stdfs::path currentPath = cwd / mainDirectory;
 				for (auto i = path.begin(); i != path.end(); i++)
 				{
 					if (std::distance(i, path.end()) == 1) // if at file name
 					{
-						currentPath = currentPath / (*i + "." + fileSuffix);
+						currentPath = currentPath / (*i + fileSuffix);
 						std::ofstream outfile(currentPath);
+						if (outfile.fail()) // eg. user has entered illegal characters
+						{
+							outfile.close();
+							return false;
+						}
 						std::array<char, 2> buf{};
 						buf[0] = (addr >> 8) & 0xFF;
 						buf[1] = addr & 0xFF;
@@ -125,10 +132,24 @@ namespace appwindows
 					else // at a directory
 					{
 						// create directory if does not exist
-						if (!stdfs::is_directory(currentPath / *i)) stdfs::create_directory(currentPath / *i);
+						try
+						{
+							if (!stdfs::is_directory(currentPath / *i)) stdfs::create_directory(currentPath / *i);
+						}
+						catch(stdfs::filesystem_error const& ex){
+							return false; // eg. user has entered illegal characters
+						}
 						currentPath = currentPath / *i;
 					}
 				}
+				LoadBookmarks();
+				return true;
+			}
+
+			void AddBookmarkButton(bool& open, uint16_t* p_addr)
+			{
+				vector<string> path = split(addBookmarkPath, "/");
+				open = !CreateBookmark(path, *p_addr);
 			}
 			
 			// dirpath example - display, lcd control registers
@@ -163,6 +184,72 @@ namespace appwindows
 				for (auto i = dirPath.begin(); std::distance(i, dirPath.end()) > 1; i++) curNode = &(curNode->nodes[*i]);
 				curNode->nodes[dirPath[dirPath.size() - 1]] = BookmarkTreeNode(dirPath[dirPath.size() - 1]);
 			};
-		}
+			
+			
+			void AddBookmarkWindow::ShowWindow()
+			{
+				if (memInspectorSelectedAddr == nullptr) { return; }
+
+				
+				// Demonstrate the various window flags. Typically you would just use the default!
+				static bool no_titlebar = false;
+				static bool no_scrollbar = false;
+				static bool no_menu = true;
+				static bool no_move = false;
+				static bool no_resize = false;
+				static bool no_collapse = false;
+				static bool no_close = false;
+				static bool no_nav = false;
+				static bool no_background = false;
+				static bool no_bring_to_front = false;
+				static bool unsaved_document = false;
+
+				ImGuiWindowFlags window_flags = 0;
+				if (no_titlebar)        window_flags |= ImGuiWindowFlags_NoTitleBar;
+				if (no_scrollbar)       window_flags |= ImGuiWindowFlags_NoScrollbar;
+				if (!no_menu)           window_flags |= ImGuiWindowFlags_MenuBar;
+				if (no_move)            window_flags |= ImGuiWindowFlags_NoMove;
+				if (no_resize)          window_flags |= ImGuiWindowFlags_NoResize;
+				if (no_collapse)        window_flags |= ImGuiWindowFlags_NoCollapse;
+				if (no_nav)             window_flags |= ImGuiWindowFlags_NoNav;
+				if (no_background)      window_flags |= ImGuiWindowFlags_NoBackground;
+				if (no_bring_to_front)  window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+				if (unsaved_document)   window_flags |= ImGuiWindowFlags_UnsavedDocument;
+				if (no_close)           p_open = NULL; // Don't pass our bool* to Begin
+
+				if (!ImGui::Begin("Add Bookmarked Address", &p_open, window_flags))
+				{
+					ImGui::End();
+					return;
+				}
+				
+
+				ImGui::Text("Add Bookmark at location: "); ImGui::SameLine();
+				ImGui::Text(toStrings::hexToString(*memInspectorSelectedAddr).c_str());
+
+				ImGui::PushItemWidth(ImGui::GetWindowWidth()-20);
+				ImGui::InputText(".gbaddr##meminsp_bookmark_add_input", &addBookmarkPath);
+				ImGui::PopItemWidth();
+
+				if (ImGui::Button("Add Bookmark")) AddBookmarkButton(p_open,memInspectorSelectedAddr);
+
+				
+				ImGui::End();
+			}
+
+			AddBookmarkWindow::AddBookmarkWindow(uint16_t* addr)
+			{
+				if (addBookmarkWindow != nullptr)
+				{
+					throw std::exception("Two of this class created!");
+				}
+				addBookmarkWindow = this;
+				memInspectorSelectedAddr = addr;
+			}
+			AddBookmarkWindow::AddBookmarkWindow()
+			{
+				
+			}
+}
 	}
 }

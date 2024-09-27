@@ -7,7 +7,12 @@
 #include <fstream>
 #include <array>
 #include "../Vendor/ImGui/imgui.h"
+#include "../Vendor/ImGui/misc/cpp/imgui_stdlib.h"
+#include "GbEmuWindow.h"
 #include "../Helper/toStrings.h"
+#include "../Helper/stringfuncs.h"
+
+class MemoryInspector;
 
 namespace appwindows
 {
@@ -43,19 +48,34 @@ namespace appwindows
 				 }
 			 };
 
+			 class AddBookmarkWindow : public GbEmuWindow
+			 {
+			 protected:
+				 void ShowWindow();
+			 public:
+				 uint16_t* memInspectorSelectedAddr = nullptr;
+				 AddBookmarkWindow(uint16_t* addr);
+				 AddBookmarkWindow();
+			 };
+
 			 extern BookmarkTreeNode rootNode;
 
 			 void bookmarkMenu(bool root = true, BookmarkTreeNode* node = nullptr);
 
 			 uint16_t jumpToBookmarkAddr = 0x0000;
 			 bool shouldMakeJump = false;
+			 std::string addBookmarkPath{"User Defined/bookmarkname"};
+			 AddBookmarkWindow* addBookmarkWindow = nullptr;
 
 			 std::string fileOrDirName(std::filesystem::path path);
 			 void CreateNode(std::vector<std::string>dirPath);
 			 bool nodeExists(std::vector<std::string>dirPath);
 			 void LoadBookmarks();
 			 void ClearBookmarks();
-			 void CreateBookmark(std::vector<std::string> path,uint16_t addr);
+			 bool CreateBookmark(std::vector<std::string> path,uint16_t addr);
+			 void AddBookmarkButton(bool& open, uint16_t* p_addr);
+
+			 
 		}
 	}
 }

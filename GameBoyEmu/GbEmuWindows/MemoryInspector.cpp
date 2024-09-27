@@ -10,6 +10,7 @@ namespace appwindows
     MemoryInspector::MemoryInspector()
     {
         memoryinspector::bookmark::LoadBookmarks();
+        addBookmarkWindow = memoryinspector::bookmark::AddBookmarkWindow(&selectedAddress);
     }
 
     void MemoryInspector::ShowWindow()
@@ -51,6 +52,8 @@ namespace appwindows
             return;
         }
         
+        
+       
         // Menu Bar
         if (ImGui::BeginMenuBar())
         {
@@ -58,8 +61,14 @@ namespace appwindows
             {
                 if (ImGui::MenuItem("Program Counter")) jumpToAddress(cpu.pc);
                 if (ImGui::MenuItem("Stack Pointer")) jumpToAddress(cpu.sp);
-                if (ImGui::BeginMenu("Bookmarked Addresses"))
+                if (ImGui::BeginMenu("Bookmarks"))
                 {
+                    if (ImGui::MenuItem("Add Bookmark"))
+                    {
+                        
+                        addBookmarkWindow.p_open = true;
+
+                    }
                     memoryinspector::bookmark::bookmarkMenu();
                     ImGui::EndMenu();
                 }
@@ -67,6 +76,8 @@ namespace appwindows
             }
             ImGui::EndMenuBar();
         }
+
+        addBookmarkWindow.Update();
 
         // jump if bookmarks told us to
         if (memoryinspector::bookmark::shouldMakeJump)
@@ -285,6 +296,8 @@ namespace appwindows
         }
         jumpToAddress(std::stoi(address, 0, 16));
     }
+
+    
 
     bool MemoryInspector::getBitFromByte(uint8_t byte, uint8_t pos)
     {
