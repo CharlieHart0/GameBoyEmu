@@ -17,31 +17,41 @@
 namespace appwindows
 {
 	
+	enum SearchWindowMode
+	{
+		SWM_FIND,
+		SWM_REPLACE
+	};
+
+	class MemoryInspector;
+
+	class MemorySearchWindow : public GbEmuWindow
+	{
+	protected:
+		void ShowWindow();
+	public:
+		SearchWindowMode mode = SWM_FIND;
+		MemorySearchWindow();
+		appwindows::MemoryInspector* p_memInspector = nullptr;
+	};
 
 	class MemoryInspector : public GbEmuWindow
 	{
-	public:
-		MemoryInspector();
-
-		void ShowWindow();
-		void UpdateInspectorValues();
-
-		
-
-		bool update_values = true;
-
-		void jumpToAddress(uint16_t address);
-		void jumpToAddress(std::string address);
-		uint16_t getSelectedAddress() { return selectedAddress; }
+	
 	protected:
 		uint16_t selectedAddress = 0x0000;
 		// address table starts at
 		uint16_t tableoffset = 0x0000;
+		// char buf for jump to address input
 		char jumpToText[5] = "0000";
 		std::vector<std::string> curButtonTooltips;
 		// tags are the tooltips of the currently selected address, and are to be displayed in the inspector.
 		std::vector<std::string> selectedAddrTags;
+
 		memoryinspector::bookmark::AddBookmarkWindow addBookmarkWindow;
+		MemorySearchWindow memSearchWindow;
+
+		bool allowMemoryEditing = false;
 		
 
 		// table start address that puts final memory byte (0xFFFF) at end of table
@@ -54,7 +64,7 @@ namespace appwindows
 		std::string instructionDetailsText(FullInstruction& ins);
 
 		std::string instructionOpText(FullInstruction& ins,bool isOp1);
-
+		// returns true if character is 0-9, a-f or A-F
 		bool isHexChar(char c);
 
 		// label of the broad memory region of an address
@@ -69,5 +79,20 @@ namespace appwindows
 
 		// the name of this function is trash, make a better name
 		void setButtonStyle_SingleType(ImVec4 buttonCol, ImVec4 textcol, std::string tooltip, bool& isCol, bool& isTextCol, bool& hasTooltip);
+
+	public:
+		MemoryInspector();
+
+		void ShowWindow();
+		void UpdateInspectorValues();
+		void jumpToAddress(uint16_t address);
+		void jumpToAddress(std::string address);
+		uint16_t getSelectedAddress() { return selectedAddress; }
+		bool getAllowMemoryEditing() { return allowMemoryEditing; }
+
+		bool update_values = true;
+		
 	};
+
+	
 }

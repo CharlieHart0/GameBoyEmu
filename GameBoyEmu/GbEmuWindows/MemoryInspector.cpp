@@ -11,6 +11,7 @@ namespace appwindows
     {
         memoryinspector::bookmark::LoadBookmarks();
         addBookmarkWindow = memoryinspector::bookmark::AddBookmarkWindow(&selectedAddress);
+        memSearchWindow.p_memInspector = this;
     }
 
     void MemoryInspector::ShowWindow()
@@ -57,6 +58,23 @@ namespace appwindows
         // Menu Bar
         if (ImGui::BeginMenuBar())
         {
+            if (ImGui::BeginMenu("Search"))
+            {
+                if (ImGui::MenuItem("Find"))
+                {
+                    memSearchWindow.p_open = true;
+                    memSearchWindow.mode = SWM_FIND;
+                }
+                if (allowMemoryEditing)
+                {
+                    if (ImGui::MenuItem("Replace"))
+                    {
+                        memSearchWindow.p_open = true;
+                        memSearchWindow.mode = SWM_REPLACE;
+                    }
+                }
+                ImGui::EndMenu();
+            }
             if (ImGui::BeginMenu("Jump to"))
             {
                 if (ImGui::MenuItem("Program Counter")) jumpToAddress(cpu.pc);
@@ -75,6 +93,7 @@ namespace appwindows
 
         // update child windows
         addBookmarkWindow.Update();
+        memSearchWindow.Update();
 
         // jump if bookmarks menu is requesting it
         if (memoryinspector::bookmark::shouldMakeJump)
@@ -193,6 +212,22 @@ namespace appwindows
 
         // navigation section, under table 
         {
+            bool prevAllowMemEdit = allowMemoryEditing;
+            ImGui::Checkbox("Allow editing of memory", &allowMemoryEditing);
+            if (allowMemoryEditing && !prevAllowMemEdit) ImGui::OpenPopup("Allow memory editing?");
+            if (ImGui::BeginPopupModal("Allow memory editing?"))
+            {
+                ImGui::TextWrapped("Are you sure you want to allow memory editing? This is only for advanced users, and is likely to cause undefined behaviour, crashes and loss of data.");
+                if (ImGui::Button("Yes, I understand the risks")) ImGui::CloseCurrentPopup();
+                ImGui::SameLine();
+                if (ImGui::Button("No, take me back"))
+                {
+                    allowMemoryEditing = false;
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
+
             ImGui::NewLine();
             // jump to address
             ImGui::Text("Jump to:"); 
@@ -206,7 +241,6 @@ namespace appwindows
             // jump to useful points
             if (ImGui::Button("Program Counter")) jumpToAddress(cpu.pc);
             if (ImGui::Button("Stack Pointer")) jumpToAddress(cpu.sp);
-
         }
 
 
@@ -371,7 +405,7 @@ namespace appwindows
             "Program Counter Location", isColoured, isTextColoured, hasTooltip);
         if (addr == cpu.sp) setButtonStyle_SingleType(imgui_col_255_f(99, 20, 245, 255), ImVec4(1, 1, 1, 1),
             "Stack Pointer Location", isColoured, isTextColoured, hasTooltip);
-        if (addr > cpu.sp) setButtonStyle_SingleType(imgui_col_255_f(164, 116, 252, 255), ImVec4(1, 1, 1, 1),
+        if (addr > cpu.sp && addr != 0xFFFF) setButtonStyle_SingleType(imgui_col_255_f(164, 116, 252, 255), ImVec4(1, 1, 1, 1),
             "Part of stack", isColoured, isTextColoured, hasTooltip);
         
         // default tooltip (memory area descriptor)
@@ -401,6 +435,45 @@ namespace appwindows
         }
     }
 
+  
+
    
+
+    void MemorySearchWindow::ShowWindow()
+    {
+        if (p_memInspector == nullptr)
+        {
+            throw std::exception("missing reference to memory inspector!");
+        }
+        std::string windowTitle = mode == SWM_FIND ? "Find###meminsp_searchwindow" : "Replace###meminsp_searchwindow";
+
+        if (!ImGui::Begin(windowTitle.c_str(), &p_open, 0))
+        {
+            ImGui::End();
+            return;
+        }
+        
+        if (p_memInspector->getAllowMemoryEditing())
+        {
+            ImGui::Text("Mode: ");
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Find", mode == SWM_FIND)) mode = SWM_FIND;
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Replace", mode == SWM_REPLACE)) mode = SWM_REPLACE;
+        }
+        else
+        {
+            mode = SWM_FIND;
+        }
+        
+
+        
+        ImGui::End();
+    }
+
+    MemorySearchWindow::MemorySearchWindow()
+    {
+    
+    }
 
 }
