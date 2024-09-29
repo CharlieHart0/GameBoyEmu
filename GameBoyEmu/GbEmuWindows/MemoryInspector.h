@@ -28,11 +28,31 @@ namespace appwindows
 	class MemorySearchWindow : public GbEmuWindow
 	{
 	protected:
+		
+		int searchAreaMode = 0;
+
+		std::string startAddrString;
+		uint16_t searchAreaStartInc = 0x0000;
+
+		std::string endAddrString;
+		uint16_t searchAreaEndInc = 0x0000;
+
+		std::string searchValueString;
+		uint8_t searchValue = 0x00;
+
+		std::string replaceValueString;
+		uint8_t replaceValue = 0x00;
+
+		std::vector<uint16_t> searchResults;
+
+		void validateSearchWindowInputString(std::string& str, uint8_t length);
+
 		void ShowWindow();
 	public:
 		SearchWindowMode mode = SWM_FIND;
 		MemorySearchWindow();
 		appwindows::MemoryInspector* p_memInspector = nullptr;
+		std::vector<uint16_t>* getPResults() { return &searchResults; }
 	};
 
 	class MemoryInspector : public GbEmuWindow
@@ -64,8 +84,6 @@ namespace appwindows
 		std::string instructionDetailsText(FullInstruction& ins);
 
 		std::string instructionOpText(FullInstruction& ins,bool isOp1);
-		// returns true if character is 0-9, a-f or A-F
-		bool isHexChar(char c);
 
 		// label of the broad memory region of an address
 		std::string getAddressLabel(uint16_t addr);

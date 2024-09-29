@@ -28,5 +28,26 @@ namespace chhelper
             }
             return strings;
         }
+
+        // returns true if character is 0-9, a-f or A-F
+        bool isHexChar(char c)
+        {
+            if ((48 <= c) && (57 >= c)) return true;
+            if ((65 <= c) && (70 >= c)) return true;
+            if ((97 <= c) && (102 >= c)) return true;
+            return false;
+        }
+
+        bool hasIllegalHexChars(std::string& input)
+        {
+            for (const auto& c : input)
+            {
+                if (!isHexChar(c))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

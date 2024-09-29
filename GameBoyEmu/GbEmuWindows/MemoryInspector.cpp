@@ -3,6 +3,7 @@
 #include <iomanip>
 
 using namespace chhelper::toStrings;
+using chhelper::stringfuncs::isHexChar, chhelper::stringfuncs::hasIllegalHexChars;
 
 namespace appwindows
 {
@@ -354,13 +355,7 @@ namespace appwindows
         else return std::string("---");
     }
 
-    bool MemoryInspector::isHexChar(char c)
-    {
-        if((48 <= c) && (57 >= c)) return true;
-        if((65 <= c) && (70 >= c)) return true;
-        if((97 <= c) && (102 >= c)) return true;
-        return false;
-    }
+   
 
     std::string MemoryInspector::getAddressLabel(uint16_t addr)
     {
@@ -401,12 +396,23 @@ namespace appwindows
         curButtonTooltips.clear();
         if (isSelected) setButtonStyle_SingleType(imgui_col_255_f(228, 90, 16, 255), ImVec4(0, 0, 0, 1),
             "Currently Selected Byte", isColoured, isTextColoured, hasTooltip);
-        if (addr == cpu.pc) setButtonStyle_SingleType(imgui_col_255_f(216, 160, 223, 255), ImVec4(0, 0, 0, 1),
-            "Program Counter Location", isColoured, isTextColoured, hasTooltip);
-        if (addr == cpu.sp) setButtonStyle_SingleType(imgui_col_255_f(99, 20, 245, 255), ImVec4(1, 1, 1, 1),
-            "Stack Pointer Location", isColoured, isTextColoured, hasTooltip);
-        if (addr > cpu.sp && addr != 0xFFFF) setButtonStyle_SingleType(imgui_col_255_f(164, 116, 252, 255), ImVec4(1, 1, 1, 1),
-            "Part of stack", isColoured, isTextColoured, hasTooltip);
+
+        // if address is in search results
+        std::vector<uint16_t>* p_searchResults = memSearchWindow.getPResults();
+        if (p_searchResults->size() > 0)
+        {
+            if (std::find(p_searchResults->begin(), p_searchResults->end(), addr) != p_searchResults->end())
+            {
+                setButtonStyle_SingleType(imgui_col_255_f(255, 255, 10, 255), ImVec4(0, 0, 0, 1),
+                    "Search Result", isColoured, isTextColoured, hasTooltip);
+            }
+        }
+
+        if (addr == cpu.pc) setButtonStyle_SingleType(imgui_col_255_f(216, 160, 223, 255), ImVec4(0, 0, 0, 1), "Program Counter Location", isColoured, isTextColoured, hasTooltip);
+
+        if (addr == cpu.sp) setButtonStyle_SingleType(imgui_col_255_f(99, 20, 245, 255), ImVec4(1, 1, 1, 1), "Stack Pointer Location", isColoured, isTextColoured, hasTooltip);
+
+        if (addr > cpu.sp && addr != 0xFFFF) setButtonStyle_SingleType(imgui_col_255_f(164, 116, 252, 255), ImVec4(1, 1, 1, 1), "Part of stack", isColoured, isTextColoured, hasTooltip);
         
         // default tooltip (memory area descriptor)
         hasTooltip = true;
@@ -439,6 +445,23 @@ namespace appwindows
 
    
 
+    void MemorySearchWindow::validateSearchWindowInputString(std::string& str, uint8_t length)
+    {
+        if (str.size() > length) startAddrString.resize(length);
+        // make sure strings are not empty, hasIllegalHexChars wont pick this up as a problem
+        
+        if (str == "")
+        {
+            std::string s;
+            for (int i = 0; i < length; i++)
+            {
+                s += "0";
+            }
+            str = s;
+        }
+    
+    }
+
     void MemorySearchWindow::ShowWindow()
     {
         if (p_memInspector == nullptr)
@@ -453,21 +476,136 @@ namespace appwindows
             return;
         }
         
+        // search mode selection
         if (p_memInspector->getAllowMemoryEditing())
         {
             ImGui::Text("Mode: ");
             ImGui::SameLine();
-            if (ImGui::RadioButton("Find", mode == SWM_FIND)) mode = SWM_FIND;
+            if (ImGui::RadioButton("Find", mode == SWM_FIND))
+            {
+                mode = SWM_FIND;
+                searchResults.clear();
+            }
             ImGui::SameLine();
-            if (ImGui::RadioButton("Replace", mode == SWM_REPLACE)) mode = SWM_REPLACE;
+            if (ImGui::RadioButton("Replace", mode == SWM_REPLACE))
+            {
+                mode = SWM_REPLACE;
+                searchResults.clear();
+            }
         }
         else
         {
             mode = SWM_FIND;
         }
+
+        ImGui::Text("Find Value: "); ImGui::SameLine();
+        ImGui::InputText("###meminsp_search_value_input", &searchValueString);
+
+        if (mode == SWM_REPLACE)
+        {
+            ImGui::Text("Replace with: "); ImGui::SameLine();
+            ImGui::InputText("###meminsp_replace_value_input", &replaceValueString);
+        }
         
+        ImGui::Text("Area to search:"); ImGui::SameLine();
+        ImGui::Combo("###meminsp_search_area_mode", &searchAreaMode, "All Memory\0Between Addresses (Inclusive)\0Until Address\0From Address\0\0");
+
 
         
+        switch (searchAreaMode)
+        {
+            case 0: // all memory
+                startAddrString = "0000";
+                endAddrString = "FFFF";
+                break;
+            case 1: // between addresses inclusive
+                ImGui::Text("Start Address:"); ImGui::SameLine();
+                ImGui::InputText("###meminsp_search_start_Addr", &startAddrString);
+                ImGui::Text("End Address:"); ImGui::SameLine();
+                ImGui::InputText("###meminsp_search_end_Addr", &endAddrString);
+                break;
+            case 2: // until address
+                ImGui::Text("End Address:"); ImGui::SameLine();
+                ImGui::InputText("###meminsp_search_end_Addr", &endAddrString);
+                break;
+            case 3: // from address
+                ImGui::Text("Start Address:"); ImGui::SameLine();
+                ImGui::InputText("###meminsp_search_start_Addr", &startAddrString);
+                break;
+
+            default:
+                throw std::exception("Invalid search area mode!");
+                break;
+        }
+
+
+        validateSearchWindowInputString(endAddrString,4);
+        validateSearchWindowInputString(startAddrString, 4);
+
+        if (mode == SWM_REPLACE)
+        {
+            validateSearchWindowInputString(replaceValueString, 2);
+            if (!hasIllegalHexChars(replaceValueString)) replaceValue = std::stoi(replaceValueString, 0, 16);
+            else
+            {
+                replaceValue = 0x00;
+                replaceValueString = "00";
+            }
+        }
+
+        if (!hasIllegalHexChars(endAddrString)) searchAreaEndInc = std::stoi(endAddrString, 0, 16);
+        else
+        {
+            searchAreaEndInc = 0xFFFF;
+            endAddrString = "FFFF";
+        }
+        if (!hasIllegalHexChars(startAddrString)) searchAreaStartInc = std::stoi(startAddrString, 0, 16);
+        else
+        {
+            searchAreaStartInc = 0x0000;
+            startAddrString = "0000";
+        }
+        
+        // search value
+        validateSearchWindowInputString(searchValueString, 2);
+        if (!hasIllegalHexChars(searchValueString)) searchValue = std::stoi(searchValueString, 0, 16);
+        else
+        {
+            searchValue = 0x00;
+            searchValueString = "00";
+        }
+
+        if (ImGui::Button(mode == SWM_FIND ? "Find###meminsp_search_confirmbutton" : "Replace###meminsp_search_confirmbutton"))
+        {
+            searchResults.clear();
+            searchResults.reserve(65536); //TODO there must be some smarter way to do this? feels like a lot to reserve, when we probably wont be returning 65,536 results.
+
+            // do the searching and or replacing
+            for (unsigned int addr = searchAreaStartInc; addr <= searchAreaEndInc; addr++)
+            {
+                if (MemoryBus_read_byte(cpu.bus, (uint16_t)addr) == searchValue) searchResults.push_back((uint16_t)addr);
+            }
+            if (mode == SWM_REPLACE && p_memInspector->getAllowMemoryEditing())
+            {
+                for (const auto& addr : searchResults)
+                {
+                    MemoryBus_write_byte(cpu.bus, addr, replaceValue);
+                }
+            }
+        }
+
+        if (searchResults.size() > 0)
+        {
+            ImGui::SameLine();
+            if (ImGui::Button("Clear Results"))
+            {
+                searchResults.clear();
+            }
+            std::string s = mode == SWM_FIND ? "Found " : "Found and replaced ";
+            s += std::to_string(searchResults.size()) + " results.";
+            ImGui::Text(s.c_str());
+        }
+
         ImGui::End();
     }
 
