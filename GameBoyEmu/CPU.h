@@ -12,6 +12,11 @@
 #include<chrono>
 #endif
 
+namespace gbppu
+{
+	class PPU;
+}
+
 enum Instruction {
 	UNINITALISED,
 	ADD,
@@ -113,6 +118,7 @@ struct CPU {
 	uint16_t sp;
 	MemoryBus bus{};
 	RomLoader romLoader;
+	gbppu::PPU* p_ppu;
 
 	bool ime = true; //TODO should this be true by default? boot rom will probably make sure its correct anyway
 
@@ -132,6 +138,8 @@ struct CPU {
 };
 
 extern CPU cpu;
+
+void CPU_INIT();
 
 #pragma region CPU_INSTRUCTIONS
 

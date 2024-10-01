@@ -15,6 +15,7 @@
 
 #include "ImGuiTexture.h"
 #include "CPU.h"
+#include "PPU.h"
 #include "Instructions.h"
 
 #include "GbEmuWindows/GraphicsInspector.h"
@@ -30,5 +31,7 @@
 
 extern std::mutex cpuAccessMutex;
 std::atomic<bool> run_gameboy_cpu_atomic = false;
+std::atomic<bool> run_gameboy_ppu_atomic = true;
 void main_CPU_step();
+void main_run_PPU();
 

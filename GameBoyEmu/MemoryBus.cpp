@@ -2,20 +2,20 @@
 #include <fstream>
 #include "Vendor/ImGui/imgui.h"
 
-uint8_t MemoryBus_read_byte(MemoryBus& memoryBus, uint16_t address) {
+uint8_t MemoryBus_read_byte(MemoryBus& memoryBus, uint16_t address, MemoryBusAccessSource source) {
 	return memoryBus.memory[address];
 }
 
-void* MemoryBus_get_ptr(MemoryBus& memoryBus, uint16_t address) {
+void* MemoryBus_get_ptr(MemoryBus& memoryBus, uint16_t address, MemoryBusAccessSource source ) {
 	return &memoryBus.memory[address];
 }
 
 // This might need to be a little more complex but itll do for now i guess
-void MemoryBus_write_byte(MemoryBus& memoryBus, uint16_t address, uint8_t byte) {
+void MemoryBus_write_byte(MemoryBus& memoryBus, uint16_t address, uint8_t byte, MemoryBusAccessSource source) {
 	memoryBus.memory[address] = byte;
 }
 
-void MemoryBus_read_from_file(MemoryBus& memoryBus, const char* filepath)
+void MemoryBus_read_from_file(MemoryBus& memoryBus, const char* filepath, MemoryBusAccessSource source)
 {
     std::ifstream inputROM(filepath, std::ios::binary);
     inputROM.seekg(0, std::ios::end);

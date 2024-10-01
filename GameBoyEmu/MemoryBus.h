@@ -36,10 +36,17 @@ struct MemoryBus {
 	// 0xFFFF  Interrupt Enabled Register
 };
 
-uint8_t MemoryBus_read_byte(MemoryBus& memoryBus, uint16_t address);
+enum class MemoryBusAccessSource{
+	UNDEFINED,
+	CPU,
+	EMULATOR_UI,
+	PPU
+};
 
-void* MemoryBus_get_ptr(MemoryBus& memoryBus, uint16_t address);
+uint8_t MemoryBus_read_byte(MemoryBus& memoryBus, uint16_t address, MemoryBusAccessSource source = MemoryBusAccessSource::UNDEFINED);
 
-void MemoryBus_write_byte(MemoryBus& memoryBus, uint16_t address, uint8_t byte);
+void* MemoryBus_get_ptr(MemoryBus& memoryBus, uint16_t address, MemoryBusAccessSource source = MemoryBusAccessSource::UNDEFINED);
 
-void MemoryBus_read_from_file(MemoryBus& memoryBus, const char* filepath);
+void MemoryBus_write_byte(MemoryBus& memoryBus, uint16_t address, uint8_t byte, MemoryBusAccessSource source = MemoryBusAccessSource::UNDEFINED);
+
+void MemoryBus_read_from_file(MemoryBus& memoryBus, const char* filepath, MemoryBusAccessSource source = MemoryBusAccessSource::UNDEFINED);

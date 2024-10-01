@@ -20,7 +20,8 @@
 // Main code
 int main(int, char**)
 {
-   
+    CPU_INIT();
+
     // Setup SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
     {
@@ -157,6 +158,7 @@ int main(int, char**)
     MemoryBus_write_byte(cpu.bus, 0xFF44, 153);
 
     std::thread threadGbCpu(main_CPU_step);
+    std::thread threadGbPPU(main_run_PPU);
 
 
     // main loop
@@ -277,8 +279,10 @@ int main(int, char**)
     // main loop ends
 
     run_gameboy_cpu_atomic = false; // pause gbcpu thread so it can be killed cleanly
+    run_gameboy_ppu_atomic = false; // pause gbppu thread so it can be killed cleanly
     cpu.romLoader.deleteRom();
     threadGbCpu.detach();
+    threadGbPPU.detach();
 
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
@@ -304,4 +308,12 @@ void main_CPU_step()
         
     };
     
+}
+
+void main_run_PPU()
+{
+    while (true)
+    {
+        if(run_gameboy_ppu_atomic) cpu.p_ppu->line();
+    }
 }

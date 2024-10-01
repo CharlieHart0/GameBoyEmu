@@ -158,6 +158,7 @@
     <ClInclude Include="Instructions.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="MemoryBus.h" />
+    <ClInclude Include="PPU.h" />
     <ClInclude Include="Registers.h" />
     <ClInclude Include="RomLoader.h" />
     <ClInclude Include="Vendor\ImGui-FileBrowser\imfilebrowser.h" />
@@ -191,6 +192,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)Vendor\ImGui\backends\;$(ProjectDir)Vendor\ImGui\;A:\Program Files\SDL2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ClCompile Include="MemoryBus.cpp" />
+    <ClCompile Include="PPU.cpp" />
     <ClCompile Include="Registers.cpp" />
     <ClCompile Include="RomLoader.cpp" />
     <ClCompile Include="Vendor\ImGui\backends\imgui_impl_opengl3.cpp" />

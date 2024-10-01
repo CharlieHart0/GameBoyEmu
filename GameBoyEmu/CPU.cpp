@@ -1,10 +1,17 @@
 #include "CPU.h"
 #include "Instructions.h"
 #include "Arithmetic.h"
+#include "PPU.h"
 
 
 CPU cpu{};
+gbppu::PPU ppu{};
 std::mutex cpuAccessMutex;
+
+void CPU_INIT()
+{
+	cpu.p_ppu = &ppu;
+}
 
 void CPU_step(CPU& cpu)
 {
@@ -213,7 +220,6 @@ void CPU_excecute(CPU &cpu, FullInstruction fullInstruction)
 		break;
 	}
 }
-
 
 
 #pragma region CPU_INSTRUCTIONS
