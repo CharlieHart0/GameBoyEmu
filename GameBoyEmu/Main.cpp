@@ -32,7 +32,7 @@ int main(int, char**)
 
   
     initInstructionSet();
-    MemoryBus_read_from_file(cpu.bus, "../GameBoyEmu/roms/dmg_boot.bin");
+    MemoryBus_read_from_file(cpu.bus, "../GameBoyEmu/roms/dmg_boot.gbboot");
    
 
 #pragma region SDL_SETUP
