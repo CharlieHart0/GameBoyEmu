@@ -136,7 +136,7 @@ namespace appwindows
                     uint16_t addressOfCell = tableoffset + (0x10 * row) + insidecol;
                     ImGui::TableNextColumn();
 
-                    ImGui::PushID((std::string("memory_ins_button") + std::string(std::to_string((row * 16) + insidecol))).c_str());
+                    
                     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
 
                     bool isSelectedCell = addressOfCell == selectedAddress;
@@ -148,14 +148,18 @@ namespace appwindows
                     
                     if (isSelectedCell) selectedAddrTags = curButtonTooltips;
                     
-                    if (ImGui::Button(hexToString(MemoryBus_read_byte(cpu.bus,addressOfCell),false).c_str(), ImVec2(18, 13))) selectedAddress = addressOfCell;
+                    std::string buttonID = std::string("memory_ins_button") + 
+                        std::string(std::to_string((row * 16) + insidecol));
+
+                    std::string buttonValue = hexToString(MemoryBus_read_byte(cpu.bus, addressOfCell, MemoryBusAccessSource::EMULATOR_UI), false);
+
+                    if (ImGui::Button((buttonValue + "###" + buttonID).c_str(), ImVec2(18, 13))) selectedAddress = addressOfCell;
                     
                     popButtonStyle(isCellColoured, isCellTextColoured);
 
                     if (hasTooltip) addButtonTooltips(addressOfCell);
 
                     ImGui::PopStyleVar();
-                    ImGui::PopID();
                 }
             }
             ImGui::EndTable();
